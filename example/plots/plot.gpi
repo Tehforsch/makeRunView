@@ -1,0 +1,4 @@
+set terminal postscript enhanced
+set output "../pics/test.eps"
+fname = "../data/test.dat"
+plot fname u 1:2 title "Test"
