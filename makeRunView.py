@@ -1,27 +1,7 @@
-import os, logging, ownUtils, executor, observer, time
-
-class FileState:
-    def __init__(self, fname):
-        self.fname = fname
-        self.successors = []
-        self.predecessors = []
-        self.resolvingFunction = self.findFileTypeFunction(fname)
-        self.polluted = []
-
-    def clean(self, workPath):
-        if self.resolvingFunction is None:
-            return None
-        return self.resolvingFunction(workPath, self.fname)
-
-    def findFileTypeFunction(self, fname):
-        fileType = ownUtils.getFileType(fname)
-        if fileType == ".gpi": # Gnuplot
-            return executor.gnuplot
-        if fileType == ".py": # Python script
-            return executor.python
+import os, logging, ownUtils, executor, observer, time, createDependencies, config
 
 class MakeRunView:
-    def __init__(self, workPath, dependencies):
+    def __init__(self, workPath, dependencies=None):
         self.workPath = workPath
 
         logging.info("Checking files")
@@ -29,6 +9,9 @@ class MakeRunView:
         self.polluted = []
         self.scanForFiles(self.workPath)
         logging.info("Found " + str(len(self.files)) + " files")
+        
+        if dependencies is None:
+            dependencies = createDependencies.createDependencies(map(lambda x : x.fname, self.files))
 
         logging.info("Creating file tree")
         self.createFileTree(dependencies)
@@ -40,7 +23,8 @@ class MakeRunView:
 
     def observeFiles(self):
         for fileState in self.files:
-            self.obs.addFile(fileState.fname)
+            if fileState.shouldBeObserved():
+                self.obs.addFile(fileState.fname)
 
     def createFileTree(self, dependencies):
         for (f1, f2) in dependencies:
@@ -103,11 +87,39 @@ class MakeRunView:
 
     def cleanTree(self, startingState):
         output = startingState.clean(self.workPath)
-        if output is not None:
+        if output is not None and startingState.fileType != ".tex":
             logging.info("Cleaned " + self.niceFilename(startingState.fname) + ", Output:")
-            logging.info(output)
+            for l in output.splitlines():
+                logging.info(l)
         for state in startingState.successors:
             self.cleanTree(state)
 
     def niceFilename(self, fname):
         return fname.replace(self.workPath + "/", "")
+
+
+class FileState:
+    def __init__(self, fname):
+        self.fname = fname
+        self.successors = []
+        self.predecessors = []
+        self.fileType = ownUtils.getFileType(fname)
+        self.resolvingFunction = self.findFileTypeFunction(fname)
+        self.polluted = []
+
+    def clean(self, workPath):
+        if self.resolvingFunction is None:
+            return None
+        return self.resolvingFunction(workPath, self.fname)
+
+    def findFileTypeFunction(self, fname):
+        if self.fileType == ".gpi": # Gnuplot
+            return executor.gnuplot
+        if self.fileType == ".py": # Python script
+            return executor.python
+        if self.fileType == ".tex": # Latex
+            return executor.latex
+
+    def shouldBeObserved(self):
+        return self.fileType in config.fileTypesToWatch
+

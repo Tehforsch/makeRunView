@@ -1,19 +1,19 @@
 import os, ownUtils
 
-def gnuplot(workFolder, fname):
-    # We have to cd into the plot directory 
+def executeStandardCommand(workFolder, fname, command):
+    # cd into the directory 
     folder, filename = os.path.split(fname)
     os.chdir(folder)
-    out, err = ownUtils.runCommand("gnuplot " + filename)
+    out, err = ownUtils.runCommand(command + " " + filename)
     # And then change back
     os.chdir(workFolder)
     return out + err
 
+def gnuplot(workFolder, fname):
+    return executeStandardCommand(workFolder, fname, "gnuplot")
+
 def python(workFolder, fname):
-    # We have to cd into the plot directory 
-    folder, filename = os.path.split(fname)
-    os.chdir(folder)
-    out, err = ownUtils.runCommand("python3 " + filename)
-    # And then change back
-    os.chdir(workFolder)
-    return out + err
+    return executeStandardCommand(workFolder, fname, "python")
+
+def latex(workFolder, fname):
+    return executeStandardCommand(workFolder, fname, "latex -interaction=nonstopmode")

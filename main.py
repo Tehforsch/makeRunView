@@ -29,7 +29,7 @@ def readConfigFile(workPath, fname):
     logging.info("Read config file. " + str(len(dependencies)) + " dependencies found.")
     return dependencies
 
-def start(workPath, dependencies):
+def run(workPath, dependencies):
     mrv = makeRunView.MakeRunView(workPath, dependencies)
     os.chdir(workPath)
     run = 0
@@ -41,22 +41,25 @@ def start(workPath, dependencies):
         # if run > 5:
         #     os.system("touch rawdata/someData.dat")
 
-def readArgsAndStart():
+def readArgsAndRun():
+    configFile = None
     args = sys.argv
     if len(args) == 1:
-        logging.info("No folder or config file given, assuming that . is the folder to work on and .workConf is the config file")
+        logging.info("No folder or config file given, assuming that . is the folder to work on and config file has to be created")
         folder = "."
-        configFile = ".workConf"
     elif len(args) == 2:
-        logging.info("No config file given, assuming that .workConf is the config file")
+        logging.info("No config file given, assuming that it has to be created")
         folder = args[1]
-        configFile = ".workConf"
     else:
         folder = args[1]
         configFile = args[2]
     workPath = os.path.abspath(folder)
-    config = readConfigFile(workPath, os.path.join(workPath, configFile))
-    logging.info("Running makeRunView on " + workPath + ".")
-    start(workPath, config)
+    if configFile is not None:
+        config = readConfigFile(workPath, os.path.join(workPath, configFile))
+        logging.info("Running makeRunView on " + workPath + " with config " + configFile)
+    else:
+        config = None
+        logging.info("Running makeRunView on " + workPath + " and creating config file")
+    run(workPath, config)
 
-readArgsAndStart()
+readArgsAndRun()

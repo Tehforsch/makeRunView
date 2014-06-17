@@ -1,0 +1,2 @@
+def createDependencies(filenames):
+    return []
