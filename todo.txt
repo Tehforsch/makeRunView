@@ -1,0 +1,3 @@
+add a function to check if a path is relative in a script and then join it with the relative path of the file we're reading the path from.
+add better dependencies instead of tuples needs a class
+add adddDependency function in makeRunView
