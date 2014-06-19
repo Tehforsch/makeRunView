@@ -15,7 +15,7 @@ def cleanFilename(fname):
     fname = fname.replace("\"", "")
     return fname
 
-def readConfigFile(workPath, fname):
+def readConfigFile(mrv, workPath, fname):
     lines = ownUtils.readFile(fname)
     # Each line is a single dependency.
     dependencies = []
@@ -25,12 +25,11 @@ def readConfigFile(workPath, fname):
         f1 = os.path.join(workPath, f1)
         f2 = cleanFilename(f2)
         f2 = os.path.join(workPath, f2)
-        dependencies.append((f1, f2))
+        mrv.addDependency(f1, f2)
     logging.info("Read config file. " + str(len(dependencies)) + " dependencies found.")
     return dependencies
 
-def run(workPath, dependencies):
-    mrv = makeRunView.MakeRunView(workPath, dependencies)
+def run(mrv, workPath):
     os.chdir(workPath)
     run = 0
     while True:
@@ -54,12 +53,13 @@ def readArgsAndRun():
         folder = args[1]
         configFile = args[2]
     workPath = os.path.abspath(folder)
+    mrv = makeRunView.MakeRunView(workPath)
     if configFile is not None:
-        config = readConfigFile(workPath, os.path.join(workPath, configFile))
+        config = readConfigFile(mrv, workPath, os.path.join(workPath, configFile))
         logging.info("Running makeRunView on " + workPath + " with config " + configFile)
     else:
         config = None
         logging.info("Running makeRunView on " + workPath + " and creating config file")
-    run(workPath, config)
+    run(mrv, workPath)
 
 readArgsAndRun()

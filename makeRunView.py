@@ -1,7 +1,7 @@
 import os, logging, ownUtils, executor, observer, time, createDependencies, config
 
 class MakeRunView:
-    def __init__(self, workPath, dependencies=None):
+    def __init__(self, workPath):
         self.workPath = workPath
 
         logging.info("Checking files")
@@ -10,11 +10,10 @@ class MakeRunView:
         self.scanForFiles(self.workPath)
         logging.info("Found " + str(len(self.files)) + " files")
         
-        if dependencies is None:
-            dependencies = createDependencies.createDependencies(map(lambda x : x.fname, self.files))
+        createDependencies.createDependencies(self, map(lambda x : x.fname, self.files))
 
         logging.info("Creating file tree")
-        self.createFileTree(dependencies)
+        self.createFileTree()
 
         self.obs = observer.Observer(self)
         self.observeFiles()
@@ -26,18 +25,18 @@ class MakeRunView:
             if fileState.shouldBeObserved():
                 self.obs.addFile(fileState.fname)
 
-    def createFileTree(self, dependencies):
-        for (f1, f2) in dependencies:
-            f1state = self.findFileState(f1)
-            f2state = self.findFileState(f2)
+    def createFileTree(self):
+        for d in self.dependencies:
+            f1state = self.findFileState(d.f1)
+            f2state = self.findFileState(d.f2)
             if f1state is None:
-                logging.warning("Start file referenced in dependency does not exist: " + f1 + "... Creating a file state")
-                f1state = self.addFileState(f1)
+                logging.warning("Start file referenced in dependency does not exist: " + d.f1 + "... Creating a file state")
+                f1state = self.addFileState(d.f1)
             if f2state is None:
-                logging.warning("End file referenced in dependency does not exist: " + f2 + "... Creating a file state")
-                f2state = self.addFileState(f2)
-            f1state.successors.append(f2state)
-            f2state.predecessors.append(f1state)
+                logging.warning("End file referenced in dependency does not exist: " + d.f2 + "... Creating a file state")
+                f2state = self.addFileState(d.f2)
+            f1state.successors.append(d)
+            f2state.predecessors.append(d)
 
     def scanForFiles(self, currentFolder):
         logging.debug("RUN " + currentFolder)
