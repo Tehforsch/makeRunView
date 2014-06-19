@@ -1,0 +1,6 @@
+example/pics/*.tex
+example/pics/*.eps
+*.aux
+*.dvi
+*.log
+*.out
