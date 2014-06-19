@@ -32,13 +32,19 @@ def readConfigFile(mrv, workPath, fname):
 def run(mrv, workPath):
     os.chdir(workPath)
     run = 0
-    while True:
-        run += 1
-        time.sleep(0.1)
-        mrv.handle()
-        # Pollute so shit hits the fan
-        # if run > 5:
-        #     os.system("touch rawdata/someData.dat")
+    try:
+        while True:
+            run += 1
+            time.sleep(0.1)
+            mrv.handle()
+            #Pollute so shit hits the fan
+            #if run == 5:
+                #os.system("touch plots/plot.gpi")
+    except (KeyboardInterrupt, SystemExit, Exception) as ex:
+        # Kill threads at least
+        mrv.obs.kill()
+        logging.exception("Program died. Killed observer thread")
+        sys.exit(0)
 
 def readArgsAndRun():
     configFile = None

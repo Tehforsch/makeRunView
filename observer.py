@@ -12,9 +12,13 @@ class Observer:
         # Watched events
         self.mask = IN_DELETE | IN_CREATE | IN_CLOSE_WRITE
 
+    def kill(self):
+        self.notifier.stop()
+        logging.debug("Observer shut down")
+
     def addFile(self, fname):
         wdd = self.wm.add_watch(fname, self.mask, rec=True)
-        logging.info("Observer now watches " + fname)
+        logging.debug("Watching " + fname)
 
 class EventHandler(ProcessEvent):
     def __init__(self, makeRunView):

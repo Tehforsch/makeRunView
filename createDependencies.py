@@ -1,22 +1,8 @@
-import logging, os, config
+import logging, os, config, executor
 import os, sys
 path = os.path.abspath("/home/toni/.usrconfig/python/")
 sys.path.append(path)
 import ownUtils
-
-class FileState:
-    def __init__(self, fname):
-        self.fname = fname
-        self.successors = []
-        self.predecessors = []
-        self.fileType = ownUtils.getFileType(fname)
-        self.polluted = []
-    
-    def readlines(self):
-        f = open(self.fname, "r")
-        lines = f.readlines()
-        f.close()
-        return lines
 
 def scanForFiles(currentFolder,fileStates):
     logging.debug("RUN " + currentFolder)
@@ -32,17 +18,38 @@ def scanForFiles(currentFolder,fileStates):
             logging.error("OH MY GOD ITS THE THING, CALL JOHN CARPENTER")
     return fileStates
 
-def createDependencies(filenames):
-    dependencies = []
-    for f in filenames:
+def createDependencies(mrv, fileStates):
+    for f in fileStates:
+        # Check file for references of output files (like set output "../test.eps") so a dependency can be created
         if f.fileType == config.gnuplotFileType:
-            dependencies += createGnuplotDependencies(f)
-    print (dependencies)
+            targets = getGnuplotTargets(f)
+        elif f.fileType == config.latexFileType:
+            targets = getLatexTargets(f)
+        elif f.fileType == config.pythonFileType:
+            targets = getPythonTargets(f)
+        else:
+            continue
+        if targets != []:
+            mrv.addDependency(f.fname, targets)
+    for f in fileStates:
+        # Check file for references of imported files (like \subimport{../pics/}{test.eps})
+        if f.fileType == config.latexFileType:
+            # Latex files may include pictures (or tex files) so a dependency has to be created
+            # but we don't want to execute latex texFile on them but instead we need to tell the
+            # system that the file that imported the other one is now polluted
+            # down the tree such that the final file gets cleaned by executing latex)
+            starts = getLatexStarts(f)
+            function = executor.emptyFunction
+        else:
+            starts = []
+            function = None
+        for start in starts:
+            mrv.addDependency(start, [f.fname], function)
 
-def createGnuplotDependencies(f):
+def getGnuplotTargets(f):
     assert(f.fileType == config.gnuplotFileType)
     # Check the gnuplot script for output files
-    dependencies = []
+    targets = []
     lines = f.readlines()
     for line in lines:
         if "set output" in line:
@@ -52,16 +59,54 @@ def createGnuplotDependencies(f):
                 quoteType = "\'"
             if line.count(quoteType) > 2:
                 logging.warning("Probably dynamic output set in plotfile: " + f.fname, ". Skipping outputfile. Resolve by adding dependency manually.")
+                continue
             outputFile = ownUtils.charactersBetween(line, quoteType, quoteType)
+            if outputFile is None:
+                continue
             if outputFile[0] != "/":
-                # Relative path.
-                # Join relative path with filename of plot script
-                fullPath = os.path.relpath(os.path.join(os.path.dirname(f.fname), outputFile))
+                # Relative path.  Join relative path with filename of plot script
+                fullPath = mergePaths(f.fname, outputFile)
             else:
+                # Absolute path. Just accept it as it is.
+                logging.warning("Absolute path in plot file? This may not behave properly.")
                 fullPath = outputFile
-            dependencies.append((f.fname, fullPath))
-    return dependencies
+            targets.append(fullPath)
+    return targets
 
+def getPythonTargets(f):
+    return []
 
-files = (scanForFiles("example", []))
-print(createDependencies(files))
+def getLatexTargets(f):
+    lines = f.readlines()
+    if lines is None:
+        return []
+    if isGnuplotLatexFile(lines):
+        return []
+    return [f.fname.replace(config.latexFileType, config.dviFileType)]
+
+def getLatexStarts(f):
+    lines = f.readlines()
+    if lines is None:
+        return []
+    # Check if this tex file is the output of gnuplot
+    if isGnuplotLatexFile(lines):
+        return []
+    starts = []
+    for l in lines:
+        if "subimport" in l:
+            # String has the form \subimport{path}{file}
+            # First find the path:
+            path = ownUtils.charactersBetween(l, "{", "}")
+            # Now search for the file by starting the search where the path begins, which ignores the first {
+            fname = ownUtils.charactersBetween(l, "{", "}", l.find(path))
+            if path is not None and fname is not None:
+                starts.append(mergePaths(f.fname, os.path.join(path, fname)) + config.latexFileType)
+    return starts
+    
+def isGnuplotLatexFile(lines):
+    return "GNUPLOT" in lines[0]
+
+def mergePaths(relPath1, relPath2):
+    """Merge the two paths which point and convert them to a standard relative path
+    (deleting .. links etc)"""
+    return os.path.abspath(os.path.join(os.path.dirname(relPath1), relPath2))

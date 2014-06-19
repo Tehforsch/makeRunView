@@ -1,4 +1,6 @@
-set terminal postscript enhanced
-set output "../pics/test.eps"
+set terminal epslatex color
+set output "../pics/test.tex"
 fname = "../data/test.dat"
 plot fname u 1:2 title "Test"
+set output "../pics/test2.eps"
+plot tanh(x**2-s) title "Test"

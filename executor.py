@@ -9,11 +9,15 @@ def executeStandardCommand(workFolder, fname, command):
     os.chdir(workFolder)
     return out + err
 
-def gnuplot(workFolder, fname):
-    return executeStandardCommand(workFolder, fname, "gnuplot")
+def gnuplot(workFolder, start, targets):
+    return executeStandardCommand(workFolder, start.fname, "gnuplot")
 
-def python(workFolder, fname):
-    return executeStandardCommand(workFolder, fname, "python")
+def python(workFolder, start, targets):
+    return executeStandardCommand(workFolder, start.fname, "python")
 
-def latex(workFolder, fname):
-    return executeStandardCommand(workFolder, fname, "latex -interaction=nonstopmode")
+def latex(workFolder, start, targets):
+    return executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
+
+def emptyFunction(workFolder, start, targets):
+    # Needed for dependencies that don't need to be resolved
+    return ""
