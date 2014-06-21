@@ -1,8 +1,6 @@
 import logging
 import os, sys
-path = os.path.abspath("/home/toni/.usrconfig/python/")
-sys.path.append(path)
-import ownUtils
+import tools
 import makeRunView
 import time
 
@@ -16,7 +14,7 @@ def cleanFilename(fname):
     return fname
 
 def readConfigFile(mrv, workPath, fname):
-    lines = ownUtils.readFile(fname)
+    lines = tools.readFile(fname)
     # Each line is a single dependency.
     dependencies = []
     for l in lines:

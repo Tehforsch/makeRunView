@@ -2,7 +2,7 @@ import logging, os, config, executor
 import os, sys
 path = os.path.abspath("/home/toni/.usrconfig/python/")
 sys.path.append(path)
-import ownUtils
+import tools
 
 def scanForFiles(currentFolder,fileStates):
     logging.debug("RUN " + currentFolder)
@@ -60,7 +60,7 @@ def getGnuplotTargets(f):
             if line.count(quoteType) > 2:
                 logging.warning("Probably dynamic output set in plotfile: " + f.fname, ". Skipping outputfile. Resolve by adding dependency manually.")
                 continue
-            outputFile = ownUtils.charactersBetween(line, quoteType, quoteType)
+            outputFile = tools.charactersBetween(line, quoteType, quoteType)
             if outputFile is None:
                 continue
             if outputFile[0] != "/":
@@ -96,9 +96,9 @@ def getLatexStarts(f):
         if "subimport" in l:
             # String has the form \subimport{path}{file}
             # First find the path:
-            path = ownUtils.charactersBetween(l, "{", "}")
+            path = tools.charactersBetween(l, "{", "}")
             # Now search for the file by starting the search where the path begins, which ignores the first {
-            fname = ownUtils.charactersBetween(l, "{", "}", l.find(path))
+            fname = tools.charactersBetween(l, "{", "}", l.find(path))
             if path is not None and fname is not None:
                 starts.append(mergePaths(f.fname, os.path.join(path, fname)) + config.latexFileType)
     return starts

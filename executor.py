@@ -1,10 +1,10 @@
-import os, ownUtils
+import os, tools
 
 def executeStandardCommand(workFolder, fname, command):
     # cd into the directory 
     folder, filename = os.path.split(fname)
     os.chdir(folder)
-    out, err = ownUtils.runCommand(command + " " + filename)
+    out, err = tools.runCommand(command + " " + filename)
     # And then change back
     os.chdir(workFolder)
     return out + err
