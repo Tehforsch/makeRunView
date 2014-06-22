@@ -3,6 +3,7 @@ import os, sys
 import tools
 import makeRunView
 import time
+import config
 
 # Configure logs
 #logging.basicConfig(filename='makeRunView.log', filemode='w', level=logging.DEBUG)
@@ -38,7 +39,7 @@ def run(mrv, workPath):
             #Pollute so shit hits the fan
             #if run == 5:
                 #os.system("touch plots/plot.gpi")
-    except (KeyboardInterrupt, SystemExit, Exception) as ex:
+    except (KeyboardInterrupt, SystemExit, Exception, AttributeError) as ex:
         # Kill threads at least
         mrv.obs.kill()
         logging.exception("Program died. Killed observer thread")
@@ -46,24 +47,23 @@ def run(mrv, workPath):
 
 def readArgsAndRun():
     configFile = None
-    args = sys.argv
+    args = list(filter(lambda x : "-" not in x, sys.argv))
+    parameters = list(filter(lambda x : "-" in x, sys.argv))
+
     if len(args) == 1:
-        logging.info("No folder or config file given, assuming that . is the folder to work on and config file has to be created")
         folder = "."
     elif len(args) == 2:
-        logging.info("No config file given, assuming that it has to be created")
         folder = args[1]
-    else:
-        folder = args[1]
-        configFile = args[2]
+
     workPath = os.path.abspath(folder)
     mrv = makeRunView.MakeRunView(workPath)
-    if configFile is not None:
-        config = readConfigFile(mrv, workPath, os.path.join(workPath, configFile))
-        logging.info("Running makeRunView on " + workPath + " with config " + configFile)
-    else:
-        config = None
-        logging.info("Running makeRunView on " + workPath + " and creating config file")
+
+    logging.info("Running makeRunView on " + workPath + " and looking for dependencies")
+
+    if "-p" in parameters:
+        # Replot all gpi files. Just a helper
+        mrv.pollute(config.gnuplotFileType)
+
     run(mrv, workPath)
 
 readArgsAndRun()

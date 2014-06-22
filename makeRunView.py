@@ -78,6 +78,11 @@ class MakeRunView:
             for state in dependency.targets:
                 self.cleanTree(state)
 
+    def pollute(self, fileType):
+        for f in self.files:
+            if f.fileType == fileType:
+                self.polluted.append(f)
+
     def handle(self):
         # Check for polluted files, 
         if len(self.polluted) != 0:
@@ -85,7 +90,8 @@ class MakeRunView:
             # Files are polluted, ignore incoming notifications about changed files
             # because those will most likely be the cleaning process itself.
             self.ignoreNotifications = True
-            self.cleanTree(self.polluted[0])
+            for poll in self.polluted:
+                self.cleanTree(poll)
             self.polluted = []
             time.sleep(config.safetyTime)
             self.ignoreNotifications = False

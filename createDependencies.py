@@ -78,7 +78,7 @@ def getPythonTargets(f):
 
 def getLatexTargets(f):
     lines = f.readlines()
-    if lines is None:
+    if lines is None or lines == []:
         return []
     if isGnuplotLatexFile(lines):
         return []
@@ -86,7 +86,7 @@ def getLatexTargets(f):
 
 def getLatexStarts(f):
     lines = f.readlines()
-    if lines is None:
+    if lines is None or lines == []:
         return []
     # Check if this tex file is the output of gnuplot
     if isGnuplotLatexFile(lines):
