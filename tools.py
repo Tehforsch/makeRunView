@@ -1,6 +1,7 @@
 import numpy as np
 import subprocess
 import os
+import config
 
 def readFile(fname):
     """Returns the lines contained in fname in standard list format"""
@@ -41,10 +42,25 @@ def charactersBetween(string, start, end, startIndex=0):
     if startIndex == -1 or endIndex == -1:
         return None
     return string[startIndex:endIndex]
-    
+
 def getFileType(fname):
     """Extracts the file ending of file name by returning everything after the first point (including the point)"""
     return os.path.splitext(fname)[1]
+
+def isComment(line, fileType):
+    whitespace = [" ", "\t"]
+    if fileType not in config.commentStrings.keys():
+        return False
+    else:
+        commentString = config.commentStrings[fileType]
+    for z in line:
+        if z in whitespace:
+            pass
+        elif z == commentString:
+            return True
+        else:
+            return False
+    return False
 
 def runCommand(command):
     """Runs the system command and returns output and errors"""

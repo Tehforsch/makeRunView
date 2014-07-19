@@ -119,6 +119,7 @@ class MakeRunView:
                 target = self.addFileState(targetFname)
                 logging.warning("Referenced file doesn't exist. Added a file state for " + self.niceFilename(target) + ".")
             targets.append(target)
+        logging.info("Added Dependency, " + self.niceFilename(start) + "-> " + ", ".join(map(lambda x : self.niceFilename(x), targets)))
         self.dependencies.append(Dependency(start, targets, cleanFunction))
 
     def addFileState(self, fname):

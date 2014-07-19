@@ -20,6 +20,17 @@ def scanForFiles(currentFolder,fileStates):
 
 def createDependencies(mrv, fileStates):
     for f in fileStates:
+        # Explicit dependencies are given within the top lines  of the file, they look like
+        # # MRV Reads ../data/*
+        # or
+        # % MRV Writes ../pictures/*
+        # for example
+        starts, targets = checkExplicitDependencies(f)
+        if targets != []:
+            mrv.addDependency(f.fname, targets)
+        if starts != []:
+            for start in starts:
+                mrv.addDependency(start, [f.fname])
         # Check file for references of output files (like set output "../test.eps") so a dependency can be created
         if f.fileType == config.gnuplotFileType:
             targets = getGnuplotTargets(f)
@@ -40,11 +51,38 @@ def createDependencies(mrv, fileStates):
             # down the tree such that the final file gets cleaned by executing latex)
             starts = getLatexStarts(f)
             function = executor.emptyFunction
+        elif f.fileType == config.gnuplotFileType:
+            # Gnuplot may load template files.
+            starts = getGnuplotStarts(f)
+            function = executor.emptyFunction
         else:
             starts = []
             function = None
         for start in starts:
             mrv.addDependency(start, [f.fname], function)
+
+def checkExplicitDependencies(f):
+    if f.fileType not in config.fileTypesToCheckExplicitDependencies:
+        return [[], []]
+    lines = f.readlines()[:2] 
+    starts = []
+    targets = []
+    for l in lines:
+        if tools.isComment(l, f.fileType):
+            l = l.replace("\n", "")
+            if "MRV" in l:
+                if config.startString in l:
+                    assert(starts == []) # There should be only one line like this
+                    fileList = l[l.index(config.startString)+len(config.startString):]
+                    starts = fileList.split(config.fileListSeparator)
+                if config.targetString in l:
+                    assert(targets == []) # There should be only one line like this
+                    fileList = l[l.index(config.targetString)+len(config.targetString):]
+                    targets = fileList.split(config.fileListSeparator)
+    makeAbsolute = lambda x : ensureAbsolute(x, f.fname)
+    starts = list(map(makeAbsolute, starts))
+    targets = list(map(makeAbsolute, targets))
+    return starts, targets
 
 def getGnuplotTargets(f):
     assert(f.fileType == config.gnuplotFileType)
@@ -58,20 +96,40 @@ def getGnuplotTargets(f):
             elif "\'" in line:
                 quoteType = "\'"
             if line.count(quoteType) > 2:
-                logging.warning("Probably dynamic output set in plotfile: " + f.fname, ". Skipping outputfile. Resolve by adding dependency manually.")
+                logging.warning("Probably dynamic output set in plotfile: " + f.fname + ". Skipping outputfile. Resolve by adding dependency manually.")
                 continue
             outputFile = tools.charactersBetween(line, quoteType, quoteType)
             if outputFile is None:
                 continue
-            if outputFile[0] != "/":
-                # Relative path.  Join relative path with filename of plot script
-                fullPath = mergePaths(f.fname, outputFile)
-            else:
-                # Absolute path. Just accept it as it is.
-                logging.warning("Absolute path in plot file? This may not behave properly.")
-                fullPath = outputFile
-            targets.append(fullPath)
+            targets.append(ensureAbsolute(outputFile, f.fname))
     return targets
+
+def getGnuplotStarts(f):
+    assert(f.fileType == config.gnuplotFileType)
+    # Check the gnuplot script for loaded gnuplot files, should check data files as well.
+    starts = []
+    lines = f.readlines()
+    for line in lines:
+        if "load" in line[0:4]:
+            if "\"" in line:
+                quoteType = "\""
+            elif "\'" in line:
+                quoteType = "\'"
+            if line.count(quoteType) > 2:
+                continue
+            outputFile = tools.charactersBetween(line, quoteType, quoteType)
+            if outputFile is None:
+                continue
+            fullPath = ensureAbsolute(outputFile, f.fname)
+            # if outputFile[0] != "/":
+            #     # Relative path.  Join relative path with filename of plot script
+            #     fullPath = mergePaths(f.fname, outputFile)
+            # else:
+            #     # Absolute path. Just accept it as it is.
+            #     logging.warning("Absolute path in plot file? This may not behave properly.")
+            #     fullPath = outputFile
+            starts.append(fullPath)
+    return starts
 
 def getPythonTargets(f):
     return []
@@ -105,6 +163,15 @@ def getLatexStarts(f):
     
 def isGnuplotLatexFile(lines):
     return "GNUPLOT" in lines[0]
+
+def ensureAbsolute(path, relpath):
+    path = path.strip()
+    if path[0] != "/":
+        # Relative path.  Join relative path with filename of plot script
+        return mergePaths(relpath, path)
+    else:
+        # Absolute path. Just accept it as it is.
+        return relpath
 
 def mergePaths(relPath1, relPath2):
     """Merge the two paths which point and convert them to a standard relative path
