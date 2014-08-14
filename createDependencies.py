@@ -140,6 +140,8 @@ def getLatexTargets(f):
         return []
     if isGnuplotLatexFile(lines):
         return []
+    if not isMainLatexFile(lines):
+        return []
     return [f.fname.replace(config.latexFileType, config.dviFileType)]
 
 def getLatexStarts(f):
@@ -151,7 +153,7 @@ def getLatexStarts(f):
         return []
     starts = []
     for l in lines:
-        if "subimport" in l:
+        if "\\subimport" in l:
             # String has the form \subimport{path}{file}
             # First find the path:
             path = tools.charactersBetween(l, "{", "}")
@@ -159,10 +161,22 @@ def getLatexStarts(f):
             fname = tools.charactersBetween(l, "{", "}", l.find(path))
             if path is not None and fname is not None:
                 starts.append(mergePaths(f.fname, os.path.join(path, fname)) + config.latexFileType)
+        if "\\input" in l:
+            # String has the form \input{latexfile}
+            fname = tools.charactersBetween(l, "{", "}")
+            if fname is not None:
+                starts.append(mergePaths(f.fname, os.path.join("", fname)) + config.latexFileType)
+
     return starts
     
 def isGnuplotLatexFile(lines):
     return "GNUPLOT" in lines[0]
+
+def isMainLatexFile(lines):
+    for l in lines:
+        if "\\begin{document}" in l:
+            return True
+    return False
 
 def ensureAbsolute(path, relpath):
     path = path.strip()
