@@ -47,6 +47,15 @@ def getFileType(fname):
     """Extracts the file ending of file name by returning everything after the first point (including the point)"""
     return os.path.splitext(fname)[1]
 
+def getFileName(fname):
+    """Extracts the file name of path + file name by returning"""
+    return os.path.split(fname)[1]
+
+def mergePaths(relPath1, relPath2):
+    """Merge the two paths which point and convert them to a standard relative path
+    (deleting .. links etc)"""
+    return os.path.abspath(os.path.join(os.path.dirname(relPath1), relPath2))
+
 def isComment(line, fileType):
     whitespace = [" ", "\t"]
     if fileType not in config.commentStrings.keys():

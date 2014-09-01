@@ -16,7 +16,8 @@ def python(workFolder, start, targets):
     return executeStandardCommand(workFolder, start.fname, "python")
 
 def latex(workFolder, start, targets):
-    s1 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
+    # s1 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
+    s1 = executeStandardCommand(workFolder, start.fname, "pdflatex -interaction=nonstopmode -shell-escape")
     #s2 = executeStandardCommand(workFolder, start.fname, "bibtex")
     #s3 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
     return s1

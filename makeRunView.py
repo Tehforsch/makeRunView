@@ -2,6 +2,7 @@ import os, logging, tools, executor, observer, time, config
 from fileState import FileState
 from dependency import Dependency
 from createDependencies import createDependencies
+import imp
 
 class MakeRunView:
     def __init__(self, workPath):

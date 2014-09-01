@@ -71,6 +71,8 @@ def checkExplicitDependencies(f):
         if tools.isComment(l, f.fileType):
             l = l.replace("\n", "")
             if "MRV" in l:
+                for i in range(100):
+                    print(l)
                 if config.startString in l:
                     assert(starts == []) # There should be only one line like this
                     fileList = l[l.index(config.startString)+len(config.startString):]
@@ -123,7 +125,7 @@ def getGnuplotStarts(f):
             fullPath = ensureAbsolute(outputFile, f.fname)
             # if outputFile[0] != "/":
             #     # Relative path.  Join relative path with filename of plot script
-            #     fullPath = mergePaths(f.fname, outputFile)
+            #     fullPath = tools.mergePaths(f.fname, outputFile)
             # else:
             #     # Absolute path. Just accept it as it is.
             #     logging.warning("Absolute path in plot file? This may not behave properly.")
@@ -160,12 +162,12 @@ def getLatexStarts(f):
             # Now search for the file by starting the search where the path begins, which ignores the first {
             fname = tools.charactersBetween(l, "{", "}", l.find(path))
             if path is not None and fname is not None:
-                starts.append(mergePaths(f.fname, os.path.join(path, fname)) + config.latexFileType)
+                starts.append(tools.mergePaths(f.fname, os.path.join(path, fname)) + config.latexFileType)
         if "\\input" in l:
             # String has the form \input{latexfile}
             fname = tools.charactersBetween(l, "{", "}")
             if fname is not None:
-                starts.append(mergePaths(f.fname, os.path.join("", fname)) + config.latexFileType)
+                starts.append(tools.mergePaths(f.fname, os.path.join("", fname)) + config.latexFileType)
 
     return starts
     
@@ -182,12 +184,7 @@ def ensureAbsolute(path, relpath):
     path = path.strip()
     if path[0] != "/":
         # Relative path.  Join relative path with filename of plot script
-        return mergePaths(relpath, path)
+        return tools.mergePaths(relpath, path)
     else:
         # Absolute path. Just accept it as it is.
         return relpath
-
-def mergePaths(relPath1, relPath2):
-    """Merge the two paths which point and convert them to a standard relative path
-    (deleting .. links etc)"""
-    return os.path.abspath(os.path.join(os.path.dirname(relPath1), relPath2))

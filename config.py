@@ -1,6 +1,8 @@
+configurationFileName = ".mrvConf"
+
 fileTypesToWatch = [".gpi", ".py", ".tex", ".sh", ".dat"]
 fileTypesToPrintOutput = [".gpi", ".py"]
-fileTypesToCheckExplicitDependencies = [".gpi", ".py"]
+fileTypesToCheckExplicitDependencies = [".gpi", ".py", ".tex"]
 
 targetString = "writes"
 startString = "needs"
@@ -20,3 +22,5 @@ commentStrings[gnuplotFileType] = "#"
 commentStrings[latexFileType] = "%"
 commentStrings[pythonFileType] = "#"
 commentStrings[bashFileType] = "#"
+
+latexCommand = "pdflatex -shell-espace -interaction=nonstopmode"
