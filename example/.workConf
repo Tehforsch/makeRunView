@@ -1,4 +1,0 @@
-"rawdata/someData.dat" -> "eval/calc.py"
-"eval/calc.py" -> "data/test.dat"
-"data/test.dat" -> "plots/plot.gpi"
-"plots/plot.gpi" -> "pics/test.eps"
