@@ -5,23 +5,24 @@ def executeStandardCommand(workFolder, fname, command):
     folder, filename = os.path.split(fname)
     os.chdir(folder)
     out, err = tools.runCommand(command + " " + filename)
+    print("Executing " + command + " " + filename)
     # And then change back
     os.chdir(workFolder)
     return out + err
 
-def gnuplot(workFolder, start, targets):
-    return executeStandardCommand(workFolder, start.fname, "gnuplot")
+# def gnuplot(workFolder, start, targets):
+#     return executeStandardCommand(workFolder, start.fname, "gnuplot")
 
-def python(workFolder, start, targets):
-    return executeStandardCommand(workFolder, start.fname, "python")
+# def python(workFolder, start, targets):
+#     return executeStandardCommand(workFolder, start.fname, "python3")
 
-def latex(workFolder, start, targets):
-    # s1 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
-    s1 = executeStandardCommand(workFolder, start.fname, "pdflatex -interaction=nonstopmode -shell-escape")
-    #s2 = executeStandardCommand(workFolder, start.fname, "bibtex")
-    #s3 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
-    return s1
+# def latex(workFolder, start, targets):
+#     # s1 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
+#     s1 = executeStandardCommand(workFolder, start.fname, "pdflatex -interaction=nonstopmode -shell-escape")
+#     #s2 = executeStandardCommand(workFolder, start.fname, "bibtex")
+#     #s3 = executeStandardCommand(workFolder, start.fname, "latex -interaction=nonstopmode")
+#     return s1
 
-def emptyFunction(workFolder, start, targets):
-    # Needed for dependencies that don't need to be resolved
-    return ""
+# def emptyFunction(workFolder, start, targets):
+#     # Needed for dependencies that don't need to be resolved
+#     return ""

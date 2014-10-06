@@ -3,6 +3,11 @@ import subprocess
 import os
 import config
 
+def cleanFilename(fname):
+    fname = fname.strip()
+    fname = fname.replace("\"", "")
+    return fname
+
 def readFile(fname):
     """Returns the lines contained in fname in standard list format"""
     f = open(fname, "r")
@@ -93,3 +98,4 @@ def transpose(lst):
     for i in range(len(lst)-1):
         assert(len(lst[i]) == len(lst[i+1]))
     return list(map(list, zip(*lst)))
+

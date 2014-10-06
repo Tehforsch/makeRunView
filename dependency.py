@@ -1,22 +1,11 @@
 import executor
 
 class Dependency:
-    def __init__(self, start, targets, cleaningFunction=None):
-        self.start = start
+    """The biggest set of connected files that can be cleaned by executing one function."""
+    def __init__(self, starts, targets, cleaningFunction=None):
+        self.starts = starts
         self.targets = targets
-        if cleaningFunction is None:
-            self.cleaningFunction = self.findFileTypeFunction()
-        else:
-            self.cleaningFunction = cleaningFunction
-        self.start = start
-
-    def findFileTypeFunction(self):
-        if self.start.fileType == ".gpi": # Gnuplot
-            return executor.gnuplot
-        if self.start.fileType == ".py": # Python script
-            return executor.python
-        if self.start.fileType == ".tex": # Latex
-            return executor.latex
+        self.cleaningFunction = cleaningFunction
 
     def clean(self, workPath):
         if self.cleaningFunction is None:

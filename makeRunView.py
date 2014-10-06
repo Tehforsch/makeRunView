@@ -1,29 +1,26 @@
 import os, logging, tools, executor, observer, time, config
+from dependencies import Dependencies
 from fileState import FileState
-from dependency import Dependency
-from createDependencies import createDependencies
+# from dependency import Dependency
 import imp
 
 class MakeRunView:
     def __init__(self, workPath):
         self.workPath = workPath
-        self.polluted = []
 
         logging.info("Checking files")
         self.files = []
         self.scanForFiles(self.workPath)
         logging.info("Found " + str(len(self.files)) + " files")
+        print(list(map(str, self.files)))
 
         logging.info("Creating dependencies.")
-        self.dependencies = []
-        createDependencies(self, self.files)
-        
-        logging.info("Created " + str(len(self.dependencies)) + " dependencies")
-        for d in self.dependencies:
-            logging.debug(self.niceFilename(d.start) + "->" + str(list(map(lambda x : self.niceFilename(x), d.targets))))
 
+        self.dependencies = Dependencies(self.files)
+        self.polluted = []
+        # createDependencies(self, self.files)
+        
         logging.info("Creating file tree")
-        self.createFileTree()
 
         self.obs = observer.Observer(self)
         self.observeFiles()
@@ -40,10 +37,6 @@ class MakeRunView:
             else:
                 logging.error("OH MY GOD ITS THE THING, CALL JOHN CARPENTER")
 
-    def createFileTree(self):
-        for d in self.dependencies:
-            d.start.successors.append(d)
-
     def notifyChanged(self, fname):
         """Gets called by the notifier thread when fname changes. """
         if self.ignoreNotifications:
@@ -56,33 +49,21 @@ class MakeRunView:
 
     def printOutput(self, bufferOutput):
         logging.info("-------------------------------------------------")
+        # TODO
+        # There is a reason why buffers exist. This code does not take this reason into account at all.
         for l in bufferOutput.splitlines():
             print(str(l, "utf-8"))
         logging.info("-------------------------------------------------")
-
-    def outputWanted(self, dependency, output):
-        if dependency.start.fileType == config.latexFileType:
-            for l in output.splitlines():
-                if "No pages of output" in str(l):
-                    return True
-        return dependency.start.fileType in config.fileTypesToPrintOutput
     
-    def cleanedMessage(self, dependency, output):
-        logging.info("Cleaned " + self.niceFilename(dependency.start))
-        if output is not None and self.outputWanted(dependency, output):
-            self.printOutput(output)
-
     def cleanTree(self, startingState):
+        self.dependencies.update(startingState)
         for dependency in startingState.successors:
             output = dependency.clean(self.workPath)
-            self.cleanedMessage(dependency, output)
+            logging.info("Cleaned " + self.niceFilename(dependency.start))
+            if output is not None and dependency.outputWanted:
+                self.printOutput(output)
             for state in dependency.targets:
                 self.cleanTree(state)
-
-    def pollute(self, fileType):
-        for f in self.files:
-            if f.fileType == fileType:
-                self.polluted.append(f)
 
     def handle(self):
         # Check for polluted files, 
@@ -102,26 +83,12 @@ class MakeRunView:
             if fileState.shouldBeObserved():
                 self.obs.addFile(fileState.fname)
 
+    # Help functions
     def findFileState(self, fname):
         for fileState in self.files:
             if fileState.fname == fname:
                 return fileState
         return None
-
-    def addDependency(self, startFname, targetFnames, cleanFunction=None):
-        targets = []
-        start = self.findFileState(startFname)
-        if not start:
-            start = self.addFileState(startFname)
-            logging.warning("Referenced file doesn't exist. Added a file state for " + self.niceFilename(start) + ".")
-        for targetFname in targetFnames:
-            target = self.findFileState(targetFname)
-            if not target:
-                target = self.addFileState(targetFname)
-                logging.warning("Referenced file doesn't exist. Added a file state for " + self.niceFilename(target) + ".")
-            targets.append(target)
-        logging.info("Added Dependency, " + self.niceFilename(start) + "-> " + ", ".join(map(lambda x : self.niceFilename(x), targets)))
-        self.dependencies.append(Dependency(start, targets, cleanFunction))
 
     def addFileState(self, fname):
         fileState = FileState(fname)

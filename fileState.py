@@ -19,3 +19,6 @@ class FileState:
 
     def shouldBeObserved(self):
         return self.fileType in config.fileTypesToWatch
+
+    def __str__(self):
+        return "<" + self.fileName + ">"
