@@ -12,15 +12,12 @@ class MakeRunView:
         self.files = []
         self.scanForFiles(self.workPath)
         logging.info("Found " + str(len(self.files)) + " files")
-        print(list(map(str, self.files)))
 
-        logging.info("Creating dependencies.")
-
-        self.dependencies = Dependencies(self.files)
+        self.dependencies = Dependencies(self.workPath)
         self.polluted = []
         # createDependencies(self, self.files)
         
-        logging.info("Creating file tree")
+        logging.info("Starting observer thread")
 
         self.obs = observer.Observer(self)
         self.observeFiles()

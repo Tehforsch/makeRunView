@@ -24,3 +24,6 @@ commentStrings[pythonFileType] = "#"
 commentStrings[bashFileType] = "#"
 
 latexCommand = "pdflatex -shell-espace -interaction=nonstopmode"
+
+globalPath = "/home/toni/Projects/makeRunView/modules/"
+localPathName = ".modules"
