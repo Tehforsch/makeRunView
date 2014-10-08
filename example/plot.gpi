@@ -1,0 +1,3 @@
+set terminal pngcairo
+set output "test.png"
+plot sin(x)
