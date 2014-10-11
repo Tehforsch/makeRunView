@@ -1,7 +1,5 @@
 import numpy as np
-import subprocess
-import os
-import config
+import subprocess, os, config, logging
 
 def cleanFilename(fname):
     fname = fname.strip()
@@ -85,6 +83,21 @@ def isComment(line, fileType):
         else:
             return False
     return False
+
+def executeExactCommand(workFolder, fname, command):
+    out, err = runCommand(command)
+    # Change back for safety
+    os.chdir(workFolder)
+    return out + err
+
+def executeStandardCommand(workFolder, fname, command):
+    # cd into the directory 
+    folder, filename = os.path.split(fname)
+    os.chdir(folder)
+    out, err = runCommand(command + " " + filename)
+    # And then change back
+    os.chdir(workFolder)
+    return out + err
 
 def runCommand(command):
     """Runs the system command and returns output and errors"""

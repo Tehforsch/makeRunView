@@ -1,8 +1,8 @@
-import os, config
+import os, config, logging, tools
 from dependency import Dependency
-import tools
 
 import modules.gpimodule
+import modules.texmodule
 
 class DependencyManager:
     """Checks dependencies between files by calling modules. Modules are loaded from a global module folder
@@ -17,7 +17,7 @@ class DependencyManager:
         self.modules = self.loadModules(workPath)
         self.modules = self.modules + self.loadModules(config.globalPath)
         # TEST
-        self.modules = [modules.gpimodule]
+        self.modules = [modules.gpimodule, modules.texmodule]
         self.initialCheck()
 
     def initialCheck(self):
@@ -28,7 +28,15 @@ class DependencyManager:
                 for m in self.modules:
                     newDependencies = self.getDependencies(m, f, lines)
                     if newDependencies is not None:
-                        self.dependencies = self.dependencies + newDependencies
+                        if type(newDependencies) != list:
+                            self.dependencies.append(newDependencies)
+                        else:
+                            self.dependencies = self.dependencies + newDependencies
+        invalidDependencies = list(filter(lambda x : x.invalid, self.dependencies))
+        if len(invalidDependencies) != 0:
+            logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
+        self.dependencies = list(filter(lambda x : not x.invalid, self.dependencies))
+        logging.debug("List of created dependencies: \n" + "\n".join(map(str,self.dependencies)))
         for d in self.dependencies:
             for startFile in d.starts:
                 startFile.successors.append(d)
@@ -41,25 +49,8 @@ class DependencyManager:
 
     def getDependencies(self, module, fileState, lines):
         # Module.check returns a list of entries of the form (starts, targets, function)
-        rawList = module.check(fileState, lines)
-        dependencies = []
-        # Safety measures
-        i = 0
-        while i < len(rawList):
-            if len(rawList[i][0]) == 0 or len(rawList[i][1]) == 0:
-                del rawList[i]
-            else:
-                i += 1
-        path = tools.getFilePath(fileState.fileName)
-        for d in rawList:
-            d[0] = self.convertLocalFileNamesToStates(d[0], path)
-            d[1] = self.convertLocalFileNamesToStates(d[1], path)
-            dependencies.append(Dependency(d[0], d[1], d[2], d[3]))
+        dependencies = module.check(self.mrv, fileState, lines)
         return dependencies
-
-    def convertLocalFileNamesToStates(self, fileNames, path):
-        fileNames = map(lambda filename : tools.ensureAbsPath(filename, path), fileNames)
-        return list(map(lambda name : self.mrv.findFileState(name), fileNames))
 
     def loadModules(self, path):
         modules = []

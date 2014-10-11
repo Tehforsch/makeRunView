@@ -1,3 +1,4 @@
-set terminal pngcairo
-set output "test.png"
-plot sin(x)
+set terminal epslatex
+set output "pic.tex"
+plot cos(x)
+print "Hi"

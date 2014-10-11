@@ -1,4 +1,4 @@
-import os, logging, tools, executor, observer, time, config
+import os, logging, tools, observer, time, config
 from dependencyManager import DependencyManager
 from fileState import FileState
 # from dependency import Dependency
@@ -8,16 +8,16 @@ class MakeRunView:
     def __init__(self, workPath):
         self.workPath = workPath
 
-        logging.info("Checking files")
+        logging.debug("Checking files")
         self.files = []
         self.scanForFiles(self.workPath)
-        logging.info("Found " + str(len(self.files)) + " files")
+        logging.debug("Found " + str(len(self.files)) + " files")
 
         self.dependencyManager = DependencyManager(self, self.workPath)
         self.polluted = []
         # createDependencies(self, self.files)
         
-        logging.info("Starting observer thread")
+        logging.debug("Starting observer thread")
 
         self.obs = observer.Observer(self)
         self.observeFiles()
@@ -41,31 +41,30 @@ class MakeRunView:
         fileState = self.findFileState(fname)
         if fileState is None:
             raise Exception("Changed file not in file tree! Why did it get watched?")
-        logging.info("File changed: " + self.niceFilename(fileState))
+        logging.debug("File changed: " + self.niceFilename(fileState))
         self.polluted.append(fileState)
 
-    def printOutput(self, bufferOutput):
-        logging.info("-------------------------------------------------")
+    def printOutput(self, dependency, bufferOutput):
         # TODO
         # There is a reason why buffers exist. This code does not take this reason into account at all.
-        for l in bufferOutput.splitlines():
-            print(str(l, "utf-8"))
-        logging.info("-------------------------------------------------")
+        logging.info(dependency)
+        if bufferOutput is not None and dependency.printOutput:
+            for l in bufferOutput.splitlines():
+                # print(str(l, "ISO-8859-1"))
+                logging.info(str(l, "utf-8"))
     
     def cleanTree(self, startingState):
         self.dependencyManager.update(startingState)
         for dependency in startingState.successors:
             output = dependency.clean(self.workPath)
-            logging.info("Cleaned " + str(dependency))
-            if output is not None and dependency.outputWanted:
-                self.printOutput(output)
+            self.printOutput(dependency, output)
             for state in dependency.targets:
                 self.cleanTree(state)
 
     def handle(self):
         # Check for polluted files, 
         if len(self.polluted) != 0:
-            logging.info("found polluted file " + self.niceFilename(self.polluted[0]))
+            logging.info("File is polluted: " + self.niceFilename(self.polluted[0]))
             # Files are polluted, ignore incoming notifications about changed files
             # because those will most likely be the cleaning process itself.
             self.ignoreNotifications = True
@@ -86,6 +85,10 @@ class MakeRunView:
             if fileState.fname == fname:
                 return fileState
         return None
+
+    def convertLocalFileNamesToStates(self, fileNames, path):
+        fileNames = map(lambda filename : tools.ensureAbsPath(filename, path), fileNames)
+        return list(map(lambda name : self.findFileState(name), fileNames))
 
     def addFileState(self, fname):
         fileState = FileState(fname)

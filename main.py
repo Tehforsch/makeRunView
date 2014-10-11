@@ -6,9 +6,8 @@ import time
 import config
 
 # Configure logs
-#logging.basicConfig(filename='makeRunView.log', filemode='w', level=logging.DEBUG)
-logging.basicConfig(level=logging.INFO)
-
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+ 
 def run(mrv, workPath):
     os.chdir(workPath)
     run = 0

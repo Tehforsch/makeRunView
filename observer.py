@@ -18,7 +18,6 @@ class Observer:
 
     def addFile(self, fname):
         wdd = self.wm.add_watch(fname, self.mask, rec=True)
-        logging.debug("Watching " + fname)
 
 class EventHandler(ProcessEvent):
     def __init__(self, makeRunView):
