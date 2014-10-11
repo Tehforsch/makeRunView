@@ -1,5 +1,7 @@
-example/pics/*.tex
-example/pics/*.eps
+example/pic.eps
+example/pic.tex
+example/pic-eps-converted-to.pdf
+example/test.pdf
 *.aux
 *.dvi
 *.log

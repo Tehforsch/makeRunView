@@ -1,4 +1,3 @@
 set terminal epslatex
 set output "pic.tex"
-plot cos(x)
-print "Hi"
+plot sin(x)
