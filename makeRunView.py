@@ -1,8 +1,8 @@
 import os, logging, tools, executor, observer, time, config
-from dependencies import Dependencies
+from dependencyManager import DependencyManager
 from fileState import FileState
 # from dependency import Dependency
-import imp
+# import imp
 
 class MakeRunView:
     def __init__(self, workPath):
@@ -13,7 +13,7 @@ class MakeRunView:
         self.scanForFiles(self.workPath)
         logging.info("Found " + str(len(self.files)) + " files")
 
-        self.dependencies = Dependencies(self.workPath)
+        self.dependencyManager = DependencyManager(self, self.workPath)
         self.polluted = []
         # createDependencies(self, self.files)
         
@@ -53,10 +53,10 @@ class MakeRunView:
         logging.info("-------------------------------------------------")
     
     def cleanTree(self, startingState):
-        self.dependencies.update(startingState)
+        self.dependencyManager.update(startingState)
         for dependency in startingState.successors:
             output = dependency.clean(self.workPath)
-            logging.info("Cleaned " + self.niceFilename(dependency.start))
+            logging.info("Cleaned " + str(dependency))
             if output is not None and dependency.outputWanted:
                 self.printOutput(output)
             for state in dependency.targets:

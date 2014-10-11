@@ -1,7 +1,7 @@
 configurationFileName = ".mrvConf"
 
 fileTypesToWatch = [".gpi", ".py", ".tex", ".sh", ".dat"]
-fileTypesToPrintOutput = [".gpi", ".py"]
+fileTypesToCheckImplicitDependencies = [".gpi", ".py", ".tex", ".sh"]
 fileTypesToCheckExplicitDependencies = [".gpi", ".py", ".tex"]
 
 targetString = "writes"

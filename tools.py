@@ -52,15 +52,25 @@ def getFileType(fname):
     """Extracts the file ending of file name by returning everything after the first point (including the point)"""
     return os.path.splitext(fname)[1]
 
+def getFilePath(fname):
+    """Extracts the file path of path + file name"""
+    return os.path.split(fname)[0] + "/"
+
 def getFileName(fname):
-    """Extracts the file name of path + file name by returning"""
+    """Extracts the file name of path + file name"""
     return os.path.split(fname)[1]
 
 def mergePaths(relPath1, relPath2):
-    """Merge the two paths which point and convert them to a standard relative path
+    """Merge the two paths which point and convert them to a standard absolute path
     (deleting .. links etc)"""
     return os.path.abspath(os.path.join(os.path.dirname(relPath1), relPath2))
 
+def ensureAbsPath(fileName, path):
+    """Check if fileName is not yet absolute. If this is true merge the filename with path to make it absolute."""
+    if fileName[0] != "/":
+        return mergePaths(path, fileName)
+    return fileName
+        
 def isComment(line, fileType):
     whitespace = [" ", "\t"]
     if fileType not in config.commentStrings.keys():

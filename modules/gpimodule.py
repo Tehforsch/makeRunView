@@ -6,4 +6,4 @@ def check(f, lines):
     for l in lines:
         if "set output" in l:
             targets.append(tools.charactersBetween(l, "\"", "\""))
-    return [[start], targets, "gnuplot"]
+    return [[[start], targets, "gnuplot", True]]

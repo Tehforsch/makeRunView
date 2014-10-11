@@ -6,7 +6,8 @@ class FileState:
         assert(self.fname[0] == "/") # All paths should be absolute.
         self.successors = []
         self.fileType = tools.getFileType(fname)
-        self.fileName = tools.getFileName(fname)
+        # self.fileName = tools.getFileName(fname)
+        self.fileName = fname
 
     def readlines(self):
         # First check if this file actually exists, which might not be the case
