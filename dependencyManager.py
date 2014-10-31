@@ -1,6 +1,7 @@
 import os, config, logging, tools
 from dependency import Dependency
 
+import importlib.machinery
 import modules.gpimodule
 import modules.texmodule
 
@@ -14,10 +15,11 @@ class DependencyManager:
     def __init__(self, mrv, workPath):
         self.mrv = mrv
         self.files = self.mrv.files
-        self.modules = self.loadModules(workPath)
-        self.modules = self.modules + self.loadModules(config.globalPath)
+        self.modules = self.loadModules(config.globalPath)
+        if os.path.isdir(workPath + config.moduleFolderName):
+            self.modules = self.modules + self.loadModules(workPath + config.moduleFolderName + "/")
         # TEST
-        self.modules = [modules.gpimodule, modules.texmodule]
+        # self.modules = [modules.gpimodule, modules.texmodule]
         self.initialCheck()
 
     def initialCheck(self):
@@ -29,9 +31,10 @@ class DependencyManager:
                     newDependencies = self.getDependencies(m, f, lines)
                     if newDependencies is not None:
                         if type(newDependencies) != list:
-                            self.dependencies.append(newDependencies)
-                        else:
-                            self.dependencies = self.dependencies + newDependencies
+                            newDependencies = [newDependencies]
+                        for dep in newDependencies:
+                            dep.initialize(self.mrv, f)
+                        self.dependencies = self.dependencies + newDependencies
         invalidDependencies = list(filter(lambda x : x.invalid, self.dependencies))
         if len(invalidDependencies) != 0:
             logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
@@ -49,17 +52,20 @@ class DependencyManager:
 
     def getDependencies(self, module, fileState, lines):
         # Module.check returns a list of entries of the form (starts, targets, function)
-        dependencies = module.check(self.mrv, fileState, lines)
+        dependencies = module.check(fileState, lines)
         return dependencies
 
     def loadModules(self, path):
         modules = []
         for f in os.listdir(path):
             if os.path.isfile(path + "/" + f):
-                modules.append(self.loadModule(path + "/" + f))
+                modules.append(self.loadModule(path + f))
         return modules
 
     def loadModule(self, fname):
-        return fname
+        logging.debug("Loading module" + str(fname))
+        loader = importlib.machinery.SourceFileLoader(os.path.split(fname)[1], fname)
+        foo = loader.load_module()
+        return foo
 
 

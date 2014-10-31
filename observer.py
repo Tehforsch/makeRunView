@@ -25,7 +25,7 @@ class EventHandler(ProcessEvent):
         self.doNotify = True
 
     def process_IN_CREATE(self, event):
-        pass
+        self.makeRunView.notifyCreated(event.pathname)
 
     def process_IN_CLOSE_WRITE(self, event):
         self.makeRunView.notifyChanged(event.pathname)

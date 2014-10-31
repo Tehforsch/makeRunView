@@ -24,6 +24,7 @@ class MakeRunView:
         self.ignoreNotifications = False
 
     def scanForFiles(self, currentFolder):
+        """For every file in the folder, check for dependencies and then run this function on each of the subfolders."""
         for thing in os.listdir(currentFolder):
             fullPathToThing = os.path.join(currentFolder, thing)
             if os.path.isdir(fullPathToThing):
@@ -44,6 +45,10 @@ class MakeRunView:
         logging.debug("File changed: " + self.niceFilename(fileState))
         self.polluted.append(fileState)
 
+    def notifyCreated(self, fname):
+        """Gets called by the notifier thread when fname is created. """
+        logging.error("not yet implemented - creation of files should add them into the system")
+
     def printOutput(self, dependency, bufferOutput):
         # TODO
         # There is a reason why buffers exist. This code does not take this reason into account at all.
@@ -54,6 +59,7 @@ class MakeRunView:
                 logging.info(str(l, "utf-8"))
     
     def cleanTree(self, startingState):
+        """If a file has been polluted, this function takes care of all the files dependent on it."""
         self.dependencyManager.update(startingState)
         for dependency in startingState.successors:
             output = dependency.clean(self.workPath)
@@ -81,19 +87,23 @@ class MakeRunView:
 
     # Help functions
     def findFileState(self, fname):
+        """Given a absolute filename return the file state of this file if it exists. Otherwise return None"""
         for fileState in self.files:
             if fileState.fname == fname:
                 return fileState
         return None
 
     def convertLocalFileNamesToStates(self, fileNames, path):
+        """Returns the absolute path of a file fileName in a subfolder path, """
         fileNames = map(lambda filename : tools.ensureAbsPath(filename, path), fileNames)
         return list(map(lambda name : self.findFileState(name), fileNames))
 
     def addFileState(self, fname):
+        """Given the absolute path of a file, create a file state and keep it"""
         fileState = FileState(fname)
         self.files.append(fileState)
         return fileState
 
     def niceFilename(self, fileState):
+        """Return the fileState path relative to the project"""
         return fileState.fname.replace(self.workPath + "/", "")

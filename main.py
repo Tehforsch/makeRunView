@@ -5,9 +5,6 @@ import makeRunView
 import time
 import config
 
-# Configure logs
-logging.basicConfig(level=logging.INFO, format='%(message)s')
- 
 def run(mrv, workPath):
     os.chdir(workPath)
     run = 0
@@ -29,6 +26,13 @@ def readArgsAndRun():
     args = list(filter(lambda x : "-" not in x, sys.argv))
     parameters = list(map(lambda x : x.replace("-", ""), filter(lambda x : "-" in x, sys.argv)))
 
+    if "v" in parameters:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    # Configure logs
+    logging.basicConfig(level=level, format='%(message)s')
+ 
     if len(args) == 1:
         folder = "."
     elif len(args) == 2:

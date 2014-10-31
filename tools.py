@@ -7,6 +7,7 @@ def cleanFilename(fname):
     return fname
 
 def readFile(fname):
+    """Return a list containing all lines in the file fname"""
     """Returns the lines contained in fname in standard list format"""
     f = open(fname, "r")
     lines = f.readlines()
@@ -48,7 +49,7 @@ def charactersBetween(string, start, end, startIndex=0):
 
 def getFileType(fname):
     """Extracts the file ending of file name by returning everything after the first point (including the point)"""
-    return os.path.splitext(fname)[1]
+    return os.path.splitext(fname)[1].replace(".", "")
 
 def getFilePath(fname):
     """Extracts the file path of path + file name"""
@@ -70,6 +71,7 @@ def ensureAbsPath(fileName, path):
     return fileName
         
 def isComment(line, fileType):
+    """Use cofig.commentStrings to determine if a line in a file of type fileType is a comment"""
     whitespace = [" ", "\t"]
     if fileType not in config.commentStrings.keys():
         return False
@@ -84,13 +86,16 @@ def isComment(line, fileType):
             return False
     return False
 
-def executeExactCommand(workFolder, fname, command):
+def executeExactCommand(workFolder, command):
+    """Run a command system command and return the output. Change to the workfolder afterwards. """
     out, err = runCommand(command)
     # Change back for safety
     os.chdir(workFolder)
     return out + err
 
 def executeStandardCommand(workFolder, fname, command):
+    """Execute the command on the file fname by switching into the path of fname, running the command
+    and switching back to workFolder afterwards."""
     # cd into the directory 
     folder, filename = os.path.split(fname)
     os.chdir(folder)
@@ -104,21 +109,3 @@ def runCommand(command):
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, errors = p.communicate()
     return output, errors
-
-# def plotData(pairs):
-#     """Uses pyplot to quickly plot a list of (x, y) pairs"""
-#     xs = []
-#     ys = []
-#     for pair in pairs:
-#         xs.append(pair[0])
-#         ys.append(pair[1])
-#     plot.plot(xs, ys, 'ro')
-#     #plot.axis([0, 6, 0, 20])
-#     plot.show()
-
-def transpose(lst):
-    """Returns the transposed (rectangular) list"""
-    for i in range(len(lst)-1):
-        assert(len(lst[i]) == len(lst[i+1]))
-    return list(map(list, zip(*lst)))
-
