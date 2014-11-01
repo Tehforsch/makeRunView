@@ -1,6 +1,8 @@
 import tools
 from dependency import Dependency
-def check(mrv, f, lines):
+def check(f, lines):
+    if f.fileType != "tex":
+        return None
     dependencies = []
     starts = []
     target = f.fname
@@ -12,4 +14,4 @@ def check(mrv, f, lines):
             starts.append(filename + ".tex")
     if len(starts) == 0:
         return None
-    return Dependency(mrv = mrv, originFile = f, starts = starts, targets = target, command = "pdflatex -interaction=nonstopmode -shell-escape", runCommandOnStartFile = False, printOutput = False)
+    return Dependency(starts = starts, targets = target, command = "pdflatex -interaction=nonstopmode -shell-escape", runCommandOnStartFile = False, printOutput = False)

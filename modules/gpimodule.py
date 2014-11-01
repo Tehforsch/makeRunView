@@ -1,6 +1,8 @@
 import tools
 from dependency import Dependency
-def check(mrv, f, lines):
+def check(f, lines):
+    if f.fileType != "gpi":
+        return None
     dependencies = []
     start = f.fname
     targets = []
@@ -9,4 +11,4 @@ def check(mrv, f, lines):
             targets.append(tools.charactersBetween(l, "\"", "\""))
     if len(targets) == 0:
         return None
-    return Dependency(mrv = mrv, originFile = f, starts = start, targets = targets, command = "gnuplot", printOutput = True)
+    return Dependency(starts = start, targets = targets, command = "gnuplot", printOutput = True)
