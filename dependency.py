@@ -18,8 +18,18 @@ class Dependency:
             self.starts = [self.starts]
         if not type(self.targets) is list:
             self.targets = [self.targets]
+        startsCopy = self.starts[:]
+        targetsCopy = self.targets[:]
         self.starts = mrv.convertLocalFileNamesToStates(self.starts, path)
         self.targets = mrv.convertLocalFileNamesToStates(self.targets, path)
+        for (i, state) in enumerate(self.starts):
+            if state == None:
+                logging.error("State doesn't exist for file " + str(startsCopy[i]))
+        for (i, state) in enumerate(self.targets):
+            if state == None:
+                logging.error("State doesn't exist for file " + str(targetsCopy[i]))
+        self.starts = [start for start in self.starts if start != None]
+        self.targets = [target for target in self.targets if target != None]
         self.originFile = originFile
         self.invalid = False
         if type(self.starts) != list:

@@ -1,9 +1,6 @@
 import os, config, logging, tools
 from dependency import Dependency
-
 import importlib.machinery
-import modules.gpimodule
-import modules.texmodule
 
 class DependencyManager:
     """Checks dependencies between files by calling modules. Modules are loaded from a global module folder
@@ -38,6 +35,7 @@ class DependencyManager:
         invalidDependencies = list(filter(lambda x : x.invalid, self.dependencies))
         if len(invalidDependencies) != 0:
             logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
+            logging.warning("This can happen (input commands in preamble for example)")
         self.dependencies = list(filter(lambda x : not x.invalid, self.dependencies))
         logging.debug("List of created dependencies: \n" + "\n".join(map(str,self.dependencies)))
         for d in self.dependencies:

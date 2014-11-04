@@ -1,8 +1,6 @@
 import os, logging, tools, observer, time, config
 from dependencyManager import DependencyManager
 from fileState import FileState
-# from dependency import Dependency
-# import imp
 
 class MakeRunView:
     def __init__(self, workPath):
