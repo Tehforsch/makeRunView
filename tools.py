@@ -48,7 +48,9 @@ def charactersBetween(string, start, end, startIndex=0):
     return string[startIndex:endIndex]
 
 def getFileType(fname):
-    """Extracts the file ending of file name by returning everything after the first point (including the point)"""
+    """Extracts the file ending of file name by returning everything after the first point (not including the point)"""
+    if len(os.path.splitext(fname)) == 1:
+        return None
     return os.path.splitext(fname)[1].replace(".", "")
 
 def getFilePath(fname):

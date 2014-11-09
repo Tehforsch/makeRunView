@@ -2,7 +2,7 @@ import os, tools, logging
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
-    def __init__(self, starts, targets, command, runCommandOnStartFile = True, printOutput = True, exactCommand = False):
+    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False):
         self.starts = starts
         self.targets = targets
         self.command = command
@@ -22,14 +22,6 @@ class Dependency:
         targetsCopy = self.targets[:]
         self.starts = mrv.convertLocalFileNamesToStates(self.starts, path)
         self.targets = mrv.convertLocalFileNamesToStates(self.targets, path)
-        for (i, state) in enumerate(self.starts):
-            if state == None:
-                logging.error("State doesn't exist for file " + str(startsCopy[i]))
-        for (i, state) in enumerate(self.targets):
-            if state == None:
-                logging.error("State doesn't exist for file " + str(targetsCopy[i]))
-        self.starts = [start for start in self.starts if start != None]
-        self.targets = [target for target in self.targets if target != None]
         self.originFile = originFile
         self.invalid = False
         if type(self.starts) != list:
@@ -41,7 +33,7 @@ class Dependency:
         self.initialized = True
 
     def clean(self, workPath):
-        if self.command is None:
+        if self.command is None: # a dependency that is just needed for the tree structure so we know what may change, but doesn't need to get cleaned
             return None
         if type(self.command) == str:
             if self.exactCommand:
@@ -56,7 +48,7 @@ class Dependency:
 
     def __str__(self):
         if self.initialized:
-            return "[" + ", ".join(map(self.mrv.niceFilename, self.starts)) + "] -> [" + ", ".join(map(self.mrv.niceFilename, self.targets)) + "] " + self.command 
+            return "[" + ", ".join(map(self.mrv.niceFilename, self.starts)) + "] -> [" + ", ".join(map(self.mrv.niceFilename, self.targets)) + "] " + ("" if self.command is None else self.command)
         else:
             return str(self.starts) + " " + str(self.targets)
 

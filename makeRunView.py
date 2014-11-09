@@ -85,11 +85,13 @@ class MakeRunView:
 
     # Help functions
     def findFileState(self, fname):
-        """Given a absolute filename return the file state of this file if it exists. Otherwise return None"""
+        """Given a absolute filename return the file state of this file if it exists. Otherwise return create a state"""
         for fileState in self.files:
             if fileState.fname == fname:
                 return fileState
-        return None
+        # The state has not yet been created. This is probably because the file just doesn't exist yet but will exist once a specific command for a dependency is executed (e.g. pdflatex which creates a .pdf file upon creation which might not have existed before"
+        return FileState(fname)
+
 
     def convertLocalFileNamesToStates(self, fileNames, path):
         """Returns the absolute path of a file fileName in a subfolder path, """
