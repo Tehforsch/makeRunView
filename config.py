@@ -1,4 +1,4 @@
-fileTypesToWatch = ["gpi", "py", "tex", "sh", "dat"]
+fileTypesToWatch = ["gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf"]
 fileTypesToCheckImplicitDependencies = ["gpi", "py", "tex", "sh"]
 
 # targetString = "writes"
@@ -22,3 +22,6 @@ safetyTime = 0.3
 
 globalPath = "/home/toni/Projects/makeRunView/modules/"
 moduleFolderName = ".modules"
+
+latexCommand = "pdflatex -interaction=nonstopmode -shell-escape"
+latexOutputFormat = "pdf"
