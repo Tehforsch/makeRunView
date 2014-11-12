@@ -5,7 +5,7 @@ A tool to automatize compiling/execution. The ultimate goal of makeRunView is to
 MakeRunView observes all files in the project folder. If a file gets written (by the user), all the commands that lead to the final product (for example a pdf file that can be viewed) will be run. 
 Determining what these commands are and how they produce subsequent files is the main job of makeRunView. In order to be adaptive enough, it loads a set of (project specific) modules that determine these commands.
 
-#A simple example
+#Example 1
 
 A (very) small project contains a gnuplot command file test.gpi which contains the lines
 
@@ -23,7 +23,7 @@ gnuplot test.gpi
 ```
 to satisfy the dependency.
 
-#A slightly more interesting example
+#Example 2
 Suppose we have our test.gpi file again, however this time outputting to two different files
 ```
 set terminal epslatex
@@ -36,7 +36,7 @@ Here, makeRunView would create the dependency
 ["test.gpi"] -> ["test1.png", "test2.png"] gnuplot
 The nice thing is that the command gnuplot only needs to be executed once to create both output files and makeRunView (or rather the module which creates these dependencies) recognizes that.
 
-#A more involved example
+#Example 3
 Let's add another file to the previous project: test.tex, which contains the lines
 ```
 ...
