@@ -1,10 +1,16 @@
-## MakeRunView
+### MakeRunView
 
 A tool to automatize compiling/execution. The ultimate goal of makeRunView is to allow the user to work on a project (a LaTeX document, a simple script or even a large program) without having to execute any of the necessary commands (pdflatex foo.tex, python bar.py, ...) everytime something in the code changes.
 
-MakeRunView observes all files in the project folder. If a file gets written (by the user), all the commands that lead to the final product (for example a pdf file that can be viewed) will be run. 
+MakeRunView observes all files in the project folder. If a file gets written by the user, all the commands that lead to the final product (a pdf file that can be viewed or the output of a program) will be run. 
 Determining what these commands are and how they produce subsequent files is the main job of makeRunView. In order to be adaptive enough, it loads a set of (project specific) modules that determine these commands.
 
+## Modules
+
+Each module should fulfill one specific job. That is, it should take the content of a file as input and then read it to determine if other files are referenced. For example, a latex picture module checks each line of a .tex file for a line like "\includegraphics{pics/test.png}" and remembers that the .tex file needs the test.png file.
+Each module is a python file stored in either the makeRunView modules subfolder or a .modules folder in the project we're working on. The makeRunView modules try to be as general as possible, however some very project specific things just can't be recognized in general. In this case the user can simply write modules for just this project.
+
+## Project Examples
 #Example 1
 
 A (very) small project contains a gnuplot command file test.gpi which contains the lines
@@ -53,5 +59,3 @@ exists as well. This means that if we change test.gpi makeRunView will automatic
 gnuplot test.gpi
 pdflatex -interaction=nonstopmode test.tex
 to create the file test.pdf which we can simply view to see the result of our plot script in our final document immediately.
-
-
