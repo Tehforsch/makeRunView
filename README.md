@@ -8,7 +8,7 @@ Determining what these commands are and how they produce subsequent files is the
 ## Modules
 
 Each module should fulfill one specific job. That is, it should take the content of a file as input and then read it to determine if other files are referenced. For example, a latex picture module checks each line of a .tex file for a line like "\includegraphics{pics/test.png}" and remembers that the .tex file needs the test.png file.
-Each module is a python file stored in either the makeRunView modules subfolder or a .modules folder in the project we're working on. The makeRunView modules try to be as general as possible, however some very project specific things just can't be recognized in general. In this case the user can simply write modules for just this project.
+Each module is a python file stored in either the makeRunView modules subfolder or a .makeRunView folder in the project we're working on. The makeRunView modules try to be as general as possible, however some very project specific things just can't be recognized in general. In this case the user can simply write modules for just this project.
 
 ## Project Examples
 #Example 1
