@@ -13,11 +13,10 @@ class DependencyManager:
         self.mrv = mrv
         self.files = self.mrv.files
         self.modules = self.loadModules(config.globalPath)
-        if os.path.isdir(workPath + config.moduleFolderName):
-            self.modules = self.modules + self.loadModules(workPath + config.moduleFolderName + "/")
-        # TEST
-        # self.modules = [modules.gpimodule, modules.texmodule]
+        if os.path.isdir(workPath + "/" + config.projectSubfolder):
+            self.modules = self.modules + self.loadModules(workPath + "/" + config.projectSubfolder)
         self.initialCheck()
+        self.addExplicitDependencies()
 
     def initialCheck(self):
         self.dependencies = []
@@ -37,10 +36,41 @@ class DependencyManager:
             logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
             logging.warning("This can happen (input commands in preamble for example)")
         self.dependencies = list(filter(lambda x : not x.invalid, self.dependencies))
-        logging.debug("List of created dependencies: \n" + "\n".join(map(str,self.dependencies)))
+        logging.info("List of created dependencies: \n" + "\n".join(map(str,self.dependencies)))
         for d in self.dependencies:
             for startFile in d.starts:
                 startFile.successors.append(d)
+
+    def addExplicitDependencies(self):
+        filename = self.mrv.workPath + "/" + config.projectSubfolder + config.explicitDependenciesFilename
+        if not os.path.exists(filename):
+            return
+        f = open(filename, "r")
+        lines = f.readlines()
+        f.close()
+        # Format of lines : [start1, start2, ...] -> [target1, target2, ...] -> command 
+        dependencies = []
+        for l in lines:
+            sp = l.split("->")
+            if len(sp) > 1:
+                starts = sp[0]
+                targets = sp[1]
+                if "," in starts:
+                    starts = starts.split(",")
+                else:
+                    starts = [starts]
+                if "," in targets:
+                    targets = targets.split(",")
+                else:
+                    targets = [targets]
+            if len(sp) == 3:
+                command = sp[2]
+            else:
+                command = None
+            dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
+        print(dependencies[0])
+        self.dependencies = self.dependencies + dependencies
+
 
     def update(self, fileState):
         if fileState.fileType in config.fileTypesToCheckImplicitDependencies:
@@ -56,12 +86,13 @@ class DependencyManager:
     def loadModules(self, path):
         modules = []
         for f in os.listdir(path):
-            if os.path.isfile(path + "/" + f):
-                modules.append(self.loadModule(path + f))
+            if os.path.splitext(f)[1] == ".py":
+                if os.path.isfile(path + "/" + f):
+                    modules.append(self.loadModule(path + f))
         return modules
 
     def loadModule(self, fname):
-        logging.debug("Loading module" + str(fname))
+        logging.info("Loading module" + str(fname))
         loader = importlib.machinery.SourceFileLoader(os.path.split(fname)[1], fname)
         foo = loader.load_module()
         return foo

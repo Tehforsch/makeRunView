@@ -29,7 +29,7 @@ def readArgsAndRun():
     if "v" in parameters:
         level = logging.DEBUG
     else:
-        level = logging.INFO
+        level = logging.WARNING
     # Configure logs
     logging.basicConfig(level=level, format='%(message)s')
  

@@ -9,7 +9,7 @@ class MakeRunView:
         logging.debug("Checking files")
         self.files = []
         self.scanForFiles(self.workPath)
-        logging.debug("Found " + str(len(self.files)) + " files")
+        logging.info("Found " + str(len(self.files)) + " files")
 
         self.dependencyManager = DependencyManager(self, self.workPath)
         self.polluted = []
@@ -28,7 +28,7 @@ class MakeRunView:
             if os.path.isdir(fullPathToThing):
                 self.scanForFiles(os.path.join(currentFolder, thing))
             elif os.path.isfile(fullPathToThing):
-                logging.debug("Adding file state for " + fullPathToThing)
+                logging.info("Adding file state for " + fullPathToThing)
                 self.addFileState(fullPathToThing)
             else:
                 logging.error("OH MY GOD ITS THE THING, CALL JOHN CARPENTER")
@@ -40,7 +40,7 @@ class MakeRunView:
         fileState = self.findFileState(fname)
         if fileState is None:
             raise Exception("Changed file not in file tree! Why did it get watched?")
-        logging.debug("File changed: " + self.niceFilename(fileState))
+        logging.info("File changed: " + self.niceFilename(fileState))
         self.polluted.append(fileState)
 
     def notifyCreated(self, fname):
@@ -54,7 +54,7 @@ class MakeRunView:
         if bufferOutput is not None and dependency.printOutput:
             for l in bufferOutput.splitlines():
                 # print(str(l, "ISO-8859-1"))
-                logging.info(str(l, "utf-8"))
+                print(str(l, "utf-8"))
     
     def cleanTree(self, startingState):
         """If a file has been polluted, this function takes care of all the files dependent on it."""
