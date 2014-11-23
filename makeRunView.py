@@ -9,7 +9,7 @@ class MakeRunView:
         logging.debug("Checking files")
         self.files = []
         self.scanForFiles(self.workPath)
-        logging.info("Found " + str(len(self.files)) + " files")
+        logging.debug("Found " + str(len(self.files)) + " files")
 
         self.dependencyManager = DependencyManager(self, self.workPath)
         self.polluted = []
@@ -28,7 +28,7 @@ class MakeRunView:
             if os.path.isdir(fullPathToThing):
                 self.scanForFiles(os.path.join(currentFolder, thing))
             elif os.path.isfile(fullPathToThing):
-                logging.info("Adding file state for " + fullPathToThing)
+                logging.debug("Adding file state for " + fullPathToThing)
                 self.addFileState(fullPathToThing)
             else:
                 logging.error("OH MY GOD ITS THE THING, CALL JOHN CARPENTER")
@@ -68,7 +68,7 @@ class MakeRunView:
     def handle(self):
         # Check for polluted files, 
         if len(self.polluted) != 0:
-            logging.info("File is polluted: " + self.niceFilename(self.polluted[0]))
+            logging.debug("File is polluted: " + self.niceFilename(self.polluted[0]))
             # Files are polluted, ignore incoming notifications about changed files
             # because those will most likely be the cleaning process itself.
             self.ignoreNotifications = True

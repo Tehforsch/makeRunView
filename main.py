@@ -26,8 +26,10 @@ def readArgsAndRun():
     args = list(filter(lambda x : "-" not in x, sys.argv))
     parameters = list(map(lambda x : x.replace("-", ""), filter(lambda x : "-" in x, sys.argv)))
 
-    if "v" in parameters:
+    if "vv" in parameters:
         level = logging.DEBUG
+    elif "v" in parameters:
+        level = logging.INFO
     else:
         level = logging.WARNING
     # Configure logs
