@@ -3,6 +3,8 @@ from dependency import Dependency
 def check(f, lines):
     if f.fileType != "tex":
         return None
+    if tools.isGnuplotLatexFile(lines):
+        return None
     dependencies = []
     starts = []
     target = f.fname

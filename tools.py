@@ -112,3 +112,9 @@ def runCommand(command):
     p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, errors = p.communicate()
     return output, errors
+
+def isGnuplotLatexFile(lines):
+    if len(lines) > 0:
+        if "GNUPLOT" in lines[0]:
+            return True
+    return False

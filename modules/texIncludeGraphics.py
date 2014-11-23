@@ -3,11 +3,13 @@ from dependency import Dependency
 def check(f, lines):
     if f.fileType != "tex":
         return None
+    if tools.isGnuplotLatexFile(lines):
+        return None
     dependencies = []
     starts = []
     target = f.fname
     for l in lines:
-        if "includegraphics" in l:
+        if "\\includegraphics" in l and "{" in l and "}" in l:
             filename = tools.charactersBetween(l, "{", "}")
             if tools.getFileType(filename) is None or tools.getFileType(filename) == "":
                 possibleExtensions = [".png", ".bmp", ".gif", ".jpg", ".pdf"]
@@ -21,7 +23,7 @@ def check(f, lines):
                         found = True
                         break
                 if not found:
-                    logging.info("Didn't find a file with this name, ignoring this dependency.")
+                    logging.info("Didn't find a file with this name, ignoring this dependency:" + str(l.replace("\n", "")))
             starts.append(filename)
     if len(starts) == 0:
         return None
