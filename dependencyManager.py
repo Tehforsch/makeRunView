@@ -1,4 +1,4 @@
-import os, config, logging, tools
+import os, config, logging, tools, sys
 from dependency import Dependency
 import importlib.machinery
 
@@ -16,21 +16,29 @@ class DependencyManager:
         if os.path.isdir(workPath + "/" + config.projectSubfolder):
             self.modules = self.modules + self.loadModules(workPath + "/" + config.projectSubfolder)
         self.initialCheck()
-        self.addExplicitDependencies()
 
     def initialCheck(self):
         self.dependencies = []
+        # Explicit
+        self.addExplicitDependencies()
+        # Implicit
         for f in self.files:
             if f.fileType in config.fileTypesToCheckImplicitDependencies:
                 lines = f.readlines()
                 for m in self.modules:
-                    newDependencies = self.getDependencies(m, f, lines)
-                    if newDependencies is not None:
-                        if type(newDependencies) != list:
-                            newDependencies = [newDependencies]
-                        for dep in newDependencies:
-                            dep.initialize(self.mrv, f)
-                        self.dependencies = self.dependencies + newDependencies
+                    try:
+                        newDependencies = self.getDependencies(m, f, lines)
+                        if newDependencies is not None:
+                            if type(newDependencies) != list:
+                                newDependencies = [newDependencies]
+                            for dep in newDependencies:
+                                dep.initialize(self.mrv, f)
+                            logging.debug("Dependency found " + str(dep))
+                            self.dependencies = self.dependencies + newDependencies
+                    except Exception as e:
+                        logging.error("Error while running the module " + str(m)  + " on " + str(f))
+                        print(f.readlines())
+                        raise
         invalidDependencies = list(filter(lambda x : x.invalid, self.dependencies))
         if len(invalidDependencies) != 0:
             logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
@@ -47,6 +55,7 @@ class DependencyManager:
             return
         f = open(filename, "r")
         lines = f.readlines()
+        lines = [l.replace("\n", "") for l in lines]
         f.close()
         # Format of lines : [start1, start2, ...] -> [target1, target2, ...] -> command 
         dependencies = []
@@ -67,8 +76,12 @@ class DependencyManager:
                 command = sp[2]
             else:
                 command = None
+            starts = [tools.cleanFilename(x) for x in starts]
+            targets = [tools.cleanFilename(x) for x in targets]
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
-        print(dependencies[0])
+        for dep in dependencies:
+            fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
+            dep.initialize(self.mrv, fileStateOfStartFile)
         self.dependencies = self.dependencies + dependencies
 
 
