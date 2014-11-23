@@ -37,7 +37,8 @@ class DependencyManager:
                             self.dependencies = self.dependencies + newDependencies
                     except Exception as e:
                         logging.error("Error while running the module " + str(m)  + " on " + str(f))
-                        print(f.readlines())
+                        logging.error("Here is the content of this file:")
+                        logging.error(f.readlines())
                         raise
         invalidDependencies = list(filter(lambda x : x.invalid, self.dependencies))
         if len(invalidDependencies) != 0:
