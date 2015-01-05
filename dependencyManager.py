@@ -82,9 +82,8 @@ class DependencyManager:
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
         for dep in dependencies:
             fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile)
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True)
         self.dependencies = self.dependencies + dependencies
-
 
     def update(self, fileState):
         if fileState.fileType in config.fileTypesToCheckImplicitDependencies:

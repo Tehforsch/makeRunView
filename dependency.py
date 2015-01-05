@@ -11,12 +11,15 @@ class Dependency:
         self.runCommandOnStartFile = runCommandOnStartFile 
         self.initialized = False
 
-    def initialize(self, mrv, originFile):
+    def initialize(self, mrv, originFile, pathIsRelativeToProject=False):
         self.mrv = mrv
         if self.starts is None or self.targets is None: # Faulty module
             self.invalid = True
             return
-        path = tools.getFilePath(originFile.fileName)
+        if pathIsRelativeToProject:
+            path = ""
+        else:
+            path = tools.getFilePath(originFile.fileName)
         if not type(self.starts) is list:
             self.starts = [self.starts]
         if not type(self.targets) is list:
