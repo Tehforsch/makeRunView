@@ -1,4 +1,3 @@
-import numpy as np
 import subprocess, os, config, logging
 
 def cleanFilename(fname):
@@ -19,24 +18,6 @@ def writeFile(fname, content):
     f = open(fname, "w")
     f.write(content)
     f.close()
-
-def readDataFile(fname, sep = " "):
-    """Reads the file fname and returns a list of numpy arrays 
-    where each array corresponds to a line in the file
-    and each entry is separated by sep (default : " ")"""
-    lines = readFile(fname)
-    data = []
-    for l in lines:
-        splitted = l.replace("\n", "").split(sep)
-        data.append(list(map(float, splitted)))
-    return list(map(np.array, data))
-
-def writeDataFile(fname, data, sep = " "):
-    """Writes the data to the file fname, separating each list with
-    a line break and each entry with sep (default " ")"""
-    strData = map(lambda x : map(str, x), data)
-    s = "\n".join(map(sep.join, strData))
-    writeFile(fname, s)
 
 def charactersBetween(string, start, end, startIndex=0):
     """Returns all characters in a string that are contained between the 
