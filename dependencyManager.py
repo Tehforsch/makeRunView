@@ -93,6 +93,10 @@ class DependencyManager:
 
     def getDependencies(self, module, fileState, lines):
         # Module.check returns a list of entries of the form (starts, targets, function)
+        if lines == None:
+            logging.error("Error while running the module " + str(module)  + " on " + str(fileState))
+            logging.error("lines = None ")
+            return
         dependencies = module.check(fileState, lines)
         return dependencies
 
