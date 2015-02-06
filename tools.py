@@ -70,6 +70,13 @@ def isComment(line, fileType):
             return False
     return False
 
+def ensureList(maybeList):
+    if maybeList == None:
+        return []
+    if type(maybeList) != list:
+        return [maybeList]
+    return maybeList
+
 def executeExactCommand(workFolder, command):
     """Run a command system command and return the output. Change to the workfolder afterwards. """
     out, err = runCommand(command)

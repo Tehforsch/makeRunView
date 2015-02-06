@@ -14,8 +14,8 @@ def run(mrv, workPath):
             time.sleep(0.1)
             mrv.handle()
             # Pollute so shit hits the fan
-            # if run == 5:
-                # os.system("touch plot.gpi")
+            if run == 5:
+                os.system("touch test.tex")
     except (KeyboardInterrupt, SystemExit, Exception, AttributeError) as ex:
         # Kill threads at least
         mrv.obs.kill()

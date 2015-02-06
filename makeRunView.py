@@ -49,7 +49,7 @@ class MakeRunView:
 
     def printOutput(self, dependency, bufferOutput):
         # TODO
-        # There is a reason why buffers exist. This code does not take this reason into account at all.
+        # There is a reason why buffers exist. This code does not take this reason into account at all
         logging.info(dependency)
         if bufferOutput is not None and dependency.printOutput:
             for l in bufferOutput.splitlines():

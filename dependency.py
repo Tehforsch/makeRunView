@@ -57,4 +57,4 @@ class Dependency:
             return "[" + ", ".join(map(self.mrv.niceFilename, self.starts)) + "] -> [" + ", ".join(map(self.mrv.niceFilename, self.targets)) + "] " + ("" if self.command is None else self.command)
         else:
             return str(self.starts) + " " + str(self.targets)
-
+    
