@@ -91,7 +91,7 @@ class DependencyManager:
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
         for dep in dependencies:
             fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True)
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
         return dependencies
 
     def update(self, fileState):
@@ -104,7 +104,8 @@ class DependencyManager:
         # Whatever dependencies we found: These are now correct. Delete all the old ones that originally came from this file, add the new ones
         deprecatedDependencies = [d for d in self.dependencies if d.originFile == fileState]
         for d in deprecatedDependencies:
-            self.removeDependency(d)
+            if not d.explicit:
+                self.removeDependency(d)
         for d in newDependencies:
             d.initialize(self.mrv, fileState)
             if d not in self.dependencies:

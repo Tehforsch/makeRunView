@@ -2,7 +2,7 @@ import os, tools, logging
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
-    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False):
+    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False, explicit=False):
         self.starts = starts
         self.targets = targets
         self.command = command
@@ -10,6 +10,7 @@ class Dependency:
         self.exactCommand = exactCommand
         self.runCommandOnStartFile = runCommandOnStartFile 
         self.initialized = False
+        self.explicit = explicit
 
     def initialize(self, mrv, originFile, pathIsRelativeToProject=False):
         self.mrv = mrv
