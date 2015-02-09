@@ -62,7 +62,7 @@ class DependencyManager:
     def getExplicitDependencies(self):
         filename = self.mrv.workPath + "/" + config.projectSubfolder + config.explicitDependenciesFilename
         if not os.path.exists(filename):
-            return
+            return []
         f = open(filename, "r")
         lines = f.readlines()
         lines = [l.replace("\n", "") for l in lines]
