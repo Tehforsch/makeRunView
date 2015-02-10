@@ -1,4 +1,4 @@
-import os, logging, tools, observer, time, config
+import os, logging, observer, time, config, utils.osUtils
 from dependencyManager import DependencyManager
 from fileState import FileState
 
@@ -92,10 +92,9 @@ class MakeRunView:
         # The state has not yet been created. This is probably because the file just doesn't exist yet but will exist once a specific command for a dependency is executed (e.g. pdflatex which creates a .pdf file upon creation which might not have existed before"
         return FileState(fname)
 
-
     def convertLocalFileNamesToStates(self, fileNames, path):
         """Returns the absolute path of a file fileName in a subfolder path, """
-        fileNames = map(lambda filename : tools.ensureAbsPath(filename, path), fileNames)
+        fileNames = map(lambda filename : utils.fileUtils.ensureAbsPath(filename, path), fileNames)
         return list(map(lambda name : self.findFileState(name), fileNames))
 
     def addFileState(self, fname):

@@ -1,9 +1,4 @@
-import logging
-import os, sys
-import tools
-import makeRunView
-import time
-import config
+import logging, os, sys, makeRunView, time
 
 def run(mrv, workPath):
     os.chdir(workPath)
@@ -13,9 +8,6 @@ def run(mrv, workPath):
             run += 1
             time.sleep(0.1)
             mrv.handle()
-            # Pollute so shit hits the fan
-            # if run == 5:
-                # os.system("touch test.tex")
     except (KeyboardInterrupt, SystemExit, Exception, AttributeError) as ex:
         # Kill threads at least
         mrv.obs.kill()

@@ -1,8 +1,9 @@
-import os, tools, logging
+import os, logging
+import utils.fileUtils, utils.osUtils
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
-    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False, explicit=False):
+    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False):
         self.starts = starts
         self.targets = targets
         self.command = command
@@ -10,17 +11,18 @@ class Dependency:
         self.exactCommand = exactCommand
         self.runCommandOnStartFile = runCommandOnStartFile 
         self.initialized = False
-        self.explicit = explicit
 
-    def initialize(self, mrv, originFile, pathIsRelativeToProject=False):
+    def initialize(self, mrv, originFile, pathIsRelativeToProject=False, explicit=False):
         self.mrv = mrv
+        self.explicit = explicit
+        self.originFile = originFile
         if self.starts is None or self.targets is None: # Faulty module
             self.invalid = True
             return
         if pathIsRelativeToProject:
             path = ""
         else:
-            path = tools.getFilePath(originFile.fileName)
+            path = utils.fileUtils.getFilePath(originFile.fileName)
         if not type(self.starts) is list:
             self.starts = [self.starts]
         if not type(self.targets) is list:
@@ -29,7 +31,6 @@ class Dependency:
         targetsCopy = self.targets[:]
         self.starts = mrv.convertLocalFileNamesToStates(self.starts, path)
         self.targets = mrv.convertLocalFileNamesToStates(self.targets, path)
-        self.originFile = originFile
         self.invalid = False
         if type(self.starts) != list:
             self.starts = [self.starts]
@@ -44,12 +45,12 @@ class Dependency:
             return None
         if type(self.command) == str:
             if self.exactCommand:
-                return tools.executeExactCommand(workPath, self.command)
+                return utils.osUtils.executeExactCommand(workPath, self.command)
             else:
                 if self.runCommandOnStartFile:
-                    return tools.executeStandardCommand(workPath, self.starts[0].fname, self.command)
+                    return utils.osUtils.executeStandardCommand(workPath, self.starts[0].fname, self.command)
                 else:
-                    return tools.executeStandardCommand(workPath, self.targets[0].fname, self.command)
+                    return utils.osUtils.executeStandardCommand(workPath, self.targets[0].fname, self.command)
         else:
             logging.error("makeRunView does not support custom functions yet, try to get by with terminal commands")
 

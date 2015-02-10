@@ -1,11 +1,12 @@
-import tools, config, os, logging
+import config, os, logging
+import utils.fileUtils
 
 class FileState:
     def __init__(self, fname):
         self.fname = fname
         assert(self.fname[0] == "/") # All paths should be absolute.
         self.successors = []
-        self.fileType = tools.getFileType(fname)
+        self.fileType = utils.fileUtils.getFileType(fname)
         # self.fileName = tools.getFileName(fname)
         self.fileName = fname
 
