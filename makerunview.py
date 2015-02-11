@@ -1,6 +1,4 @@
-import os, logging, observer, time, config, utils.osUtils
-from dependencyManager import DependencyManager
-from fileState import FileState
+import os, logging, observer, time, config, utils.osUtils, dependencymanager, filestate
 
 class MakeRunView:
     def __init__(self, workPath):
@@ -11,7 +9,7 @@ class MakeRunView:
         self.scanForFiles(self.workPath)
         logging.debug("Found " + str(len(self.files)) + " files")
 
-        self.dependencyManager = DependencyManager(self, self.workPath)
+        self.dependencyManager = dependencymanager.DependencyManager(self, self.workPath)
         self.polluted = []
         # createDependencies(self, self.files)
         
@@ -87,7 +85,7 @@ class MakeRunView:
     def findFileState(self, fname):
         """Given a absolute filename return the file state of this file if it exists. Otherwise create a state"""
         # Side comment: If the file state doesnt exist, that means the physical file doesnt exist, which could happen if a dependency was created, which, upon execution creates the file (pdflatex creates a .pdf file which could not have been there before)
-        return next((fileState for fileState in self.files if fileState.fname == fname), FileState(fname))
+        return next((fileState for fileState in self.files if fileState.fname == fname), filestate.FileState(fname))
 
     def convertLocalFileNamesToStates(self, fileNames, path):
         """Returns the fileState of a file fileName in a subfolder path, """
@@ -96,7 +94,7 @@ class MakeRunView:
 
     def addFileState(self, fname):
         """Given the absolute path of a file, create a file state and keep it"""
-        fileState = FileState(fname)
+        fileState = filestate.FileState(fname)
         self.files.append(fileState)
         return fileState
 

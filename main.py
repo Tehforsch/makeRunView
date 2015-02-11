@@ -1,4 +1,4 @@
-import logging, os, sys, makeRunView, time
+import logging, os, sys, makerunview, time
 
 def run(mrv, workPath):
     os.chdir(workPath)
@@ -33,7 +33,7 @@ def readArgsAndRun():
         folder = args[1]
 
     workPath = os.path.abspath(folder)
-    mrv = makeRunView.MakeRunView(workPath)
+    mrv = makerunview.MakeRunView(workPath)
 
     logging.info("Running makeRunView on " + workPath)
 
