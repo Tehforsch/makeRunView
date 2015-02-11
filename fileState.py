@@ -12,17 +12,12 @@ class FileState:
 
     def readlines(self):
         # First check if this file actually exists, which might not be the case
-        if not os.path.isfile(self.fname):
-            return None
-        try:
-            f = open(self.fname, "r")
+        # if not os.path.isfile(self.fname):
+            # return None
+        # try:
+        with open(self.fname, "r") as f:
             lines = f.readlines()
-            f.close()
             return lines
-        except UnicodeDecodeError as e:
-            # logging.warning("Trying to read " + self.fname + " when the following error appeared")
-            # logging.warning(e)
-            pass
         return ""
 
     def shouldBeObserved(self):

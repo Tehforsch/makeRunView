@@ -1,4 +1,5 @@
 import os, config, logging, tools, sys
+import utils.fileUtils
 from dependency import Dependency
 import importlib.machinery
 
@@ -19,45 +20,23 @@ class DependencyManager:
         self.initialCheck()
 
     def initialCheck(self):
-        dependencies = []
-        # Explicit
-        dependencies = dependencies + self.getExplicitDependencies()
-        # Implicit
+        self.getExplicitDependencies()
+        self.getImplicitDependencies()
+        self.filterInvalidDependencies()
+        logging.info("List of created dependencies: \n" + "\n".join(str(d) for d in self.dependencies))
+    
+    def filterInvalidDependencies(self):
+        # Check for invalid dependencies (target or start file does not exist, this happens if dependencies are misinterpreted. Filter those dependencies out
+        invalidDependencies = [x for x in self.dependencies if x.invalid]
+        for d in invalidDependencies:
+            logging.warning("Invalid dependency \"" + str(d) + "\" was created, meaning the referenced file does not exist:")
+        # Only keep the valid dependencies
+        self.dependencies = [x for x in self.dependencies if not x.invalid]
+
+    def getImplicitDependencies(self):
         for f in self.files:
             if f.fileType in config.fileTypesToCheckImplicitDependencies:
-                lines = f.readlines()
-                for m in self.modules:
-                    try:
-                        newDependencies = tools.ensureList(self.getDependencies(m, f, lines))
-                        for dep in newDependencies:
-                            dep.initialize(self.mrv, f)
-                            logging.debug("Dependency found " + str(dep))
-                        dependencies = dependencies + newDependencies
-                    except Exception as e:
-                        logging.error("Error while running the module " + str(m)  + " on " + str(f))
-                        logging.error("Here is the content of this file:")
-                        logging.error(f.readlines())
-                        raise
-        # Check for invalid dependencies (target or start file does not exist, this happens if dependencies are misinterpreted. Filter those dependencies out
-        invalidDependencies = [x for x in dependencies if x.invalid]
-        if len(invalidDependencies) != 0:
-            logging.warning("Invalid dependencies were created: \n" + "\n".join(map(str, invalidDependencies)))
-            logging.warning("This can happen (input commands in preamble for example)")
-        # Only keep the valid dependencies
-        dependencies = [x for x in dependencies if not x.invalid]
-        logging.info("List of created dependencies: \n" + "\n".join(map(str,dependencies)))
-        for d in dependencies:
-            self.addDependency(d)
-
-    def addDependency(self, d):
-        self.dependencies.append(d)
-        for startFile in d.starts:
-            startFile.successors.append(d)
-
-    def removeDependency(self, d):
-        self.dependencies.remove(d)
-        for startFile in d.starts:
-            startFile.successors.remove(d)
+                self.update(f)
 
     def getExplicitDependencies(self):
         filename = self.mrv.workPath + "/" + config.projectSubfolder + config.explicitDependenciesFilename
@@ -82,26 +61,34 @@ class DependencyManager:
                     targets = targets.split(",")
                 else:
                     targets = [targets]
-            if len(sp) == 3:
-                command = sp[2]
-            else:
-                command = None
+            command = sp[2] if len(sp) == 3 else None
             starts = [tools.cleanFilename(x) for x in starts]
             targets = [tools.cleanFilename(x) for x in targets]
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
         for dep in dependencies:
             fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=False,explicit=True)
+            self.addDependency(dep)
         return dependencies
 
+    def addDependency(self, d):
+        self.dependencies.append(d)
+        for startFile in d.starts:
+            startFile.successors.append(d)
+
+    def removeDependency(self, d):
+        self.dependencies.remove(d)
+        for startFile in d.starts:
+            startFile.successors.remove(d)
+
     def update(self, fileState):
-        # This file has changed. Run all modules on it to see if a new dependency was created by the changes
+        # This file has either changed or this is the initial check. Run all modules on it to see if a new dependency has to be created
         newDependencies = []
         if fileState.fileType in config.fileTypesToCheckImplicitDependencies:
             lines = fileState.readlines()
             for m in self.modules:
                 newDependencies = newDependencies + tools.ensureList(self.getDependencies(m, fileState, lines))
-        # Whatever dependencies we found: These are now correct. Delete all the old ones that originally came from this file, add the new ones
+        # Whatever dependencies we found: These are now correct. Delete all the old ones that originally came from this file, add the new ones. However, don't touch explicit dependencies, since they have to live during the whole runtime.
         deprecatedDependencies = [d for d in self.dependencies if d.originFile == fileState]
         for d in deprecatedDependencies:
             if not d.explicit:
@@ -114,24 +101,22 @@ class DependencyManager:
     def getDependencies(self, module, fileState, lines):
         # Module.check returns a list of entries of the form (starts, targets, function)
         if lines == None:
-            logging.error("Error while running the module " + str(module)  + " on " + str(fileState))
-            logging.error("lines = None ")
+            logging.error("Error while running the module " + str(module)  + " on " + str(fileState) + " - File doesn't exist")
             return
-        dependencies = module.check(fileState, lines)
-        return dependencies
+        return module.check(fileState, lines)
 
     def loadModules(self, path):
         modules = []
         for f in os.listdir(path):
-            if os.path.splitext(f)[1] == ".py":
+            if utils.fileUtils.getFileType(f) == "py":
                 if os.path.isfile(path + "/" + f):
                     modules.append(self.loadModule(path + f))
         return modules
 
     def loadModule(self, fname):
-        logging.info("Loading module" + str(fname))
+        logging.debug("Loading module" + str(fname))
         loader = importlib.machinery.SourceFileLoader(os.path.split(fname)[1], fname)
-        foo = loader.load_module()
-        return foo
+        module = loader.load_module()
+        return module
 
 

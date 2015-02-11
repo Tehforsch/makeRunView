@@ -14,20 +14,18 @@ def charactersBetween(string, start, end, startIndex=0):
         return None
     return string[startIndex:endIndex]
 
-def isComment(line, fileType):
+def isCommentInFile(line, fileType):
     """Use config.commentStrings to determine if a line in a file of type fileType is a comment"""
+    if fileType not in config.commentStrings:
+        return False # No comment string defined for this filetype
+    commentString = config.commentStrings[fileType]
+    return isComment(line, commentString)
+
+def isComment(line, commentString):
     whitespace = [" ", "\t"]
-    if fileType not in config.commentStrings.keys():
-        return False
-    else:
-        commentString = config.commentStrings[fileType]
-    for z in line:
-        if z in whitespace:
-            pass
-        elif z == commentString:
-            return True
-        else:
-            return False
+    if commentString in line:
+        everythingBeforeComment = line[:line.index(commentString)]
+        return set(everythingBeforeComment).issubset(set(whitespace))
     return False
 
 def isGnuplotLatexFile(lines):

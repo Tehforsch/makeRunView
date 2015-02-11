@@ -55,7 +55,7 @@ class MakeRunView:
             for l in bufferOutput.splitlines():
                 # print(str(l, "ISO-8859-1"))
                 print(str(l, "utf-8"))
-    
+
     def cleanTree(self, startingState):
         """If a file has been polluted, this function takes care of all the files dependent on it."""
         self.dependencyManager.update(startingState)
@@ -85,15 +85,12 @@ class MakeRunView:
 
     # Help functions
     def findFileState(self, fname):
-        """Given a absolute filename return the file state of this file if it exists. Otherwise return create a state"""
-        for fileState in self.files:
-            if fileState.fname == fname:
-                return fileState
-        # The state has not yet been created. This is probably because the file just doesn't exist yet but will exist once a specific command for a dependency is executed (e.g. pdflatex which creates a .pdf file upon creation which might not have existed before"
-        return FileState(fname)
+        """Given a absolute filename return the file state of this file if it exists. Otherwise create a state"""
+        # Side comment: If the file state doesnt exist, that means the physical file doesnt exist, which could happen if a dependency was created, which, upon execution creates the file (pdflatex creates a .pdf file which could not have been there before)
+        return next((fileState for fileState in self.files if fileState.fname == fname), FileState(fname))
 
     def convertLocalFileNamesToStates(self, fileNames, path):
-        """Returns the absolute path of a file fileName in a subfolder path, """
+        """Returns the fileState of a file fileName in a subfolder path, """
         fileNames = map(lambda filename : utils.fileUtils.ensureAbsPath(filename, path), fileNames)
         return list(map(lambda name : self.findFileState(name), fileNames))
 
