@@ -1,4 +1,6 @@
-import os, logging, observer, time, config, utils.osUtils, dependencymanager, filestate
+import os, logging, time
+from makeRunView import observer, config, dependencymanager, filestate
+from makeRunView.utils import fileUtils
 
 class MakeRunView:
     def __init__(self, workPath):
@@ -89,7 +91,7 @@ class MakeRunView:
 
     def convertLocalFileNamesToStates(self, fileNames, path):
         """Returns the fileState of a file fileName in a subfolder path, """
-        fileNames = map(lambda filename : utils.fileUtils.ensureAbsPath(filename, path), fileNames)
+        fileNames = map(lambda filename : fileUtils.ensureAbsPath(filename, path), fileNames)
         return list(map(lambda name : self.findFileState(name), fileNames))
 
     def addFileState(self, fname):

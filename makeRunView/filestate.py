@@ -1,12 +1,13 @@
-import config, os, logging
-import utils.fileUtils
+import os, logging
+from makeRunView import config
+from makeRunView.utils import fileUtils
 
 class FileState:
     def __init__(self, fname):
         self.fname = fname
         assert(self.fname[0] == "/") # All paths should be absolute.
         self.successors = []
-        self.fileType = utils.fileUtils.getFileType(fname)
+        self.fileType = fileUtils.getFileType(fname)
         # self.fileName = tools.getFileName(fname)
         self.fileName = fname
 

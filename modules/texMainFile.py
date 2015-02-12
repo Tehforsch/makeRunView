@@ -1,5 +1,5 @@
-import tools, config
-from dependency import Dependency
+from makeRunView.dependency import Dependency
+from makeRunView import tools, config
 def check(f, lines):
     """Checks if the given tex file is one that will actually compile to a pdf. If it isn't, we probably don't want to run pdflatex on it either."""
     if f.fileType != "tex":

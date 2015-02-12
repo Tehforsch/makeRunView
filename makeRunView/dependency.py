@@ -1,5 +1,5 @@
 import os, logging
-import utils.fileUtils, utils.osUtils
+from makeRunView.utils import fileUtils, osUtils
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
@@ -22,7 +22,7 @@ class Dependency:
         if pathIsRelativeToProject:
             path = ""
         else:
-            path = utils.fileUtils.getFilePath(originFile.fileName)
+            path = fileUtils.getFilePath(originFile.fileName)
         if not type(self.starts) is list:
             self.starts = [self.starts]
         if not type(self.targets) is list:
@@ -45,12 +45,12 @@ class Dependency:
             return None
         if type(self.command) == str:
             if self.exactCommand:
-                return utils.osUtils.executeExactCommand(workPath, self.command)
+                return osUtils.executeExactCommand(workPath, self.command)
             else:
                 if self.runCommandOnStartFile:
-                    return utils.osUtils.executeStandardCommand(workPath, self.starts[0].fname, self.command)
+                    return osUtils.executeStandardCommand(workPath, self.starts[0].fname, self.command)
                 else:
-                    return utils.osUtils.executeStandardCommand(workPath, self.targets[0].fname, self.command)
+                    return osUtils.executeStandardCommand(workPath, self.targets[0].fname, self.command)
         else:
             logging.error("makeRunView does not support custom functions yet, try to get by with terminal commands")
 

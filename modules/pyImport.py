@@ -1,5 +1,5 @@
-import tools
-from dependency import Dependency
+from makeRunView import tools
+from makeRunView.dependency import Dependency
 def check(f, lines):
     if f.fileType != "py":
         return None

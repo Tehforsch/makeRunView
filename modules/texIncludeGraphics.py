@@ -1,6 +1,7 @@
-import tools, os,logging
-import utils.fileUtils
-from dependency import Dependency
+import os, logging
+from makeRunView import tools
+from makeRunView.utils import fileUtils
+from makeRunView.dependency import Dependency
 def check(f, lines):
     if f.fileType != "tex":
         return None
@@ -12,7 +13,7 @@ def check(f, lines):
     for l in lines:
         if "\\includegraphics" in l and "{" in l and "}" in l:
             filename = tools.charactersBetween(l, "{", "}")
-            if utils.fileUtils.getFileType(filename) is None or tools.getFileType(filename) == "":
+            if fileUtils.getFileType(filename) is None or tools.getFileType(filename) == "":
                 possibleExtensions = [".png", ".bmp", ".gif", ".jpg", ".pdf"]
                 possibleExtensions = possibleExtensions + [x.upper() for x in possibleExtensions]
                 found = False

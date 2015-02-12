@@ -1,4 +1,4 @@
-import config
+from makeRunView import config
 
 def cleanFilename(fname):
     fname = fname.strip()
