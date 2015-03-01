@@ -68,7 +68,7 @@ class DependencyManager:
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
         for dep in dependencies:
             fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=False,explicit=True)
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
             self.addDependency(dep)
         return dependencies
 
