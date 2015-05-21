@@ -1,6 +1,7 @@
-import os, config, logging, tools, sys
-import utils.fileUtils
-from dependency import Dependency
+import os, logging, sys
+from makeRunView import config, tools
+from makeRunView.utils import fileUtils
+from makeRunView.dependency import Dependency
 import importlib.machinery
 
 class DependencyManager:
@@ -67,7 +68,7 @@ class DependencyManager:
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
         for dep in dependencies:
             fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=False,explicit=True)
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
             self.addDependency(dep)
         return dependencies
 
@@ -108,7 +109,7 @@ class DependencyManager:
     def loadModules(self, path):
         modules = []
         for f in os.listdir(path):
-            if utils.fileUtils.getFileType(f) == "py":
+            if fileUtils.getFileType(f) == "py":
                 if os.path.isfile(path + "/" + f):
                     modules.append(self.loadModule(path + f))
         return modules

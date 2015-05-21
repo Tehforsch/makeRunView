@@ -1,4 +1,5 @@
-import logging, os, sys, makerunview, time
+import logging, os, sys, time
+from makeRunView import makerunview
 
 def run(mrv, workPath):
     os.chdir(workPath)

@@ -13,8 +13,9 @@ class Observer:
         self.mask = IN_DELETE | IN_CREATE | IN_CLOSE_WRITE
 
     def kill(self):
-        self.notifier.stop()
+        status = self.notifier.stop()
         logging.debug("Observer shut down")
+        return status
 
     def addFile(self, fname):
         wdd = self.wm.add_watch(fname, self.mask, rec=True)

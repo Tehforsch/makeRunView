@@ -1,4 +1,4 @@
-import config
+from makeRunView import config
 
 def cleanFilename(fname):
     fname = fname.strip()
@@ -7,10 +7,13 @@ def cleanFilename(fname):
 
 def charactersBetween(string, start, end, startIndex=0):
     """Returns all characters in a string that are contained between the 
-    first two occurences of start and end, starting at index startIndex"""
-    startIndex = string.find(start, startIndex) + len(start)
+    first occurences of start and end, starting at index startIndex"""
+    startIndex = string.find(start, startIndex)
+    if startIndex == -1:
+        return None
+    startIndex = startIndex + len(start)
     endIndex = string.find(end, startIndex)
-    if startIndex == -1 or endIndex == -1:
+    if endIndex == -1:
         return None
     return string[startIndex:endIndex]
 
@@ -25,7 +28,7 @@ def isComment(line, commentString):
     whitespace = [" ", "\t"]
     if commentString in line:
         everythingBeforeComment = line[:line.index(commentString)]
-        return set(everythingBeforeComment).issubset(set(whitespace))
+        return set(everythingBeforeComment).issubset(whitespace)
     return False
 
 def isGnuplotLatexFile(lines):

@@ -1,6 +1,7 @@
-import tools, os,logging
-import utils.fileUtils
-from dependency import Dependency
+import os, logging
+from makeRunView import tools
+from makeRunView.utils import fileUtils
+from makeRunView.dependency import Dependency
 def check(f, lines):
     if f.fileType != "tex":
         return None
