@@ -12,7 +12,7 @@ def check(f, lines):
     for l in lines:
         if "\\includegraphics" in l and "{" in l and "}" in l:
             filename = tools.charactersBetween(l, "{", "}")
-            if utils.fileUtils.getFileType(filename) is None or tools.getFileType(filename) == "":
+            if fileUtils.getFileType(filename) is None or fileUtils.getFileType(filename) == "":
                 possibleExtensions = [".png", ".bmp", ".gif", ".jpg", ".pdf"]
                 possibleExtensions = possibleExtensions + [x.upper() for x in possibleExtensions]
                 found = False
