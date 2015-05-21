@@ -27,17 +27,16 @@ class MakeRunView:
             fullPathToThing = os.path.join(currentFolder, thing)
             if os.path.isdir(fullPathToThing):
                 self.scanForFiles(os.path.join(currentFolder, thing))
-            elif os.path.isfile(fullPathToThing):
+            else:
                 logging.debug("Adding file state for " + fullPathToThing)
                 self.addFileState(fullPathToThing)
-            else:
-                logging.error("OH MY GOD ITS THE THING, CALL JOHN CARPENTER")
 
     def notifyChanged(self, fname):
         """Gets called by the notifier thread when fname changes. """
         if self.ignoreNotifications:
             return
-        fileState = self.findFileState(fname)
+        # fileState = self.findFileState(fname)
+        fileState = next((fileState for fileState in self.files if fileState.fname == fname), filestate.FileState(fname))
         if fileState is None:
             raise Exception("Changed file not in file tree! Why did it get watched?")
         logging.info("File changed: " + self.niceFilename(fileState))
@@ -83,10 +82,13 @@ class MakeRunView:
             if fileState.shouldBeObserved():
                 self.obs.addFile(fileState.fname)
 
+    def kill(self):
+        return self.obs.kill()
+
     # Help functions
     def findFileState(self, fname):
         """Given a absolute filename return the file state of this file if it exists. Otherwise create a state"""
-        # Side comment: If the file state doesnt exist, that means the physical file doesnt exist, which could happen if a dependency was created, which, upon execution creates the file (pdflatex creates a .pdf file which could not have been there before)
+        # Side comment: If the file state doesnt exist, that probably means the physical file doesnt exist, which could happen if a dependency was created, which, upon execution creates the file (pdflatex creates a .pdf file which could not have been there before)
         return next((fileState for fileState in self.files if fileState.fname == fname), filestate.FileState(fname))
 
     def convertLocalFileNamesToStates(self, fileNames, path):
