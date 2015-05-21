@@ -57,7 +57,6 @@ class MakeRunView:
 
     def cleanTree(self, startingState):
         """If a file has been polluted, this function takes care of all the files dependent on it."""
-        self.dependencyManager.update(startingState)
         for dependency in startingState.successors:
             output = dependency.clean(self.workPath)
             self.printOutput(dependency, output)
@@ -72,6 +71,10 @@ class MakeRunView:
             # because those will most likely be the cleaning process itself.
             self.ignoreNotifications = True
             for poll in self.polluted:
+                # The file that changed needs to be checked for new/removed dependencies.
+                # This was initially done for each of the affected files (those further down the tree)
+                # however this resulted in problems in some cases and also isn't needed.
+                self.dependencyManager.update(poll)
                 self.cleanTree(poll)
             self.polluted = []
             time.sleep(config.safetyTime)
