@@ -6,3 +6,4 @@ example/test.pdf
 *.dvi
 *.log
 *.out
+.coverage
