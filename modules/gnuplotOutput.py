@@ -13,8 +13,8 @@ def check(f, lines):
             elif l.count("\'") == 2:
                 targets.append(tools.charactersBetween(l, "\'", "\'"))
             else:
-                logging.info("Dangerous gnuplot output line, not adding dependency:")
-                logging.info(l)
+                # This occurs with lines like 'set output pic'.x.'.gpi' which sets outputfiles dynamically (should happen very rarely). Just ignore it
+                continue
     if len(targets) == 0:
         return None
     return Dependency(starts = start, targets = targets, command = "gnuplot", printOutput = True)
