@@ -26,6 +26,7 @@ def check(f, lines):
                         break
                 if not found:
                     logging.info("Didn't find a file with this name, ignoring this dependency:" + str(l.replace("\n", "")))
+                    continue
             starts.append(filename)
     if len(starts) == 0:
         return None
