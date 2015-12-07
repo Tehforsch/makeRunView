@@ -20,7 +20,7 @@ fileTypesToCheckImplicitDependencies = ["gpi", "py", "tex", "sh", "pmf"]
 
 safetyTime = 0.3
 
-globalPath = "/home/toni/Projects/makeRunView/modules/"
+globalPath = "/home/toni/projects/makeRunView/modules/"
 projectSubfolder = ".makeRunView/"
 explicitDependenciesFilename = "explicit"
 
