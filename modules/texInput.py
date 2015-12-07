@@ -9,7 +9,7 @@ def check(f, lines):
     starts = []
     target = f.fname
     for l in lines:
-        if "input" in l:
+        if "\\input" in l:
             filename = tools.charactersBetween(l, "{", "}")
             starts.append(filename + ".tex")
     if len(starts) == 0:
