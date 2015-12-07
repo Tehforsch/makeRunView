@@ -18,7 +18,7 @@ class MakeRunView:
         logging.debug("Starting observer thread")
 
         self.obs = observer.Observer(self)
-        self.observeFiles()
+        self.observeFiles([f for f in os.listdir(self.workPath) if os.path.isdir(f)] + [workPath])
         self.ignoreNotifications = False
 
     def scanForFiles(self, currentFolder):
@@ -36,15 +36,18 @@ class MakeRunView:
         if self.ignoreNotifications:
             return
         # fileState = self.findFileState(fname)
-        fileState = next((fileState for fileState in self.files if fileState.fname == fname), filestate.FileState(fname))
+        fileState = next((fileState for fileState in self.files if fileState.fname == fname), None)
         if fileState is None:
-            raise Exception("Changed file not in file tree! Why did it get watched?")
-        logging.info("File changed: " + self.niceFilename(fileState))
-        self.polluted.append(fileState)
+            self.addCreatedFile(fname)
+        else:
+            logging.info("File changed: " + self.niceFilename(fileState))
+            self.polluted.append(fileState)
 
-    def notifyCreated(self, fname):
+    def addCreatedFile(self, fname):
         """Gets called by the notifier thread when fname is created. """
-        logging.error("not yet implemented - creation of files should add them into the system")
+        fileState = self.addFileState(fname)
+        logging.info("File created: " + self.niceFilename(fileState))
+        self.polluted.append(fileState)
 
     def printOutput(self, dependency, bufferOutput):
         # TODO
@@ -80,10 +83,15 @@ class MakeRunView:
             time.sleep(config.safetyTime)
             self.ignoreNotifications = False
 
-    def observeFiles(self):
+    def observeFiles(self, folderList):
+        # Watch already existent files for changes.
         for fileState in self.files:
             if fileState.shouldBeObserved():
                 self.obs.addFile(fileState.fname)
+        # Watch all folders in the project for files created within them.
+        for folder in folderList:
+            self.obs.addFolder(folder)
+
 
     def kill(self):
         return self.obs.kill()
