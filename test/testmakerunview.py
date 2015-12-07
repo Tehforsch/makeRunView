@@ -109,6 +109,20 @@ class TestMakeRunViewFileSystemInteractions():
         for (i,d) in enumerate(dependencies):
             d.clean.assert_called_once_with(".")
 
+    @mock.patch('makeRunView.filestate.FileState')
+    def testDependenciesAddedWhenFileCreated(self, fileState):
+        self.mrv.cleanTree = Mock(name="cleantree")
+        self.mrv.dependencyManager = Mock(name="dependencyManager")
+        f1 = Mock(name="filestate")
+        f1.fname = "file1"
+        self.mrv.files = [f1]
+        self.mrv.notifyChanged("file2")
+        assert(len(self.mrv.files) == 2)
+        f2 = self.mrv.files[1]
+        self.mrv.handle()
+        self.mrv.cleanTree.assert_called_once_with(f2)
+        self.mrv.dependencyManager.update.assert_called_once_with(f2)
+
     # def testDependencyGraph(self):
     #     g = Graph()
     #     g.topNode.addSuccessor(Node())
