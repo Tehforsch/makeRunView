@@ -25,5 +25,5 @@ projectSubfolder = ".makeRunView/"
 explicitDependenciesFilename = "explicit"
 
 
-latexCommand = "pdflatex -interaction=nonstopmode -shell-escape"
+latexCommand = "ppdflatex -interaction=nonstopmode -shell-escape"
 latexOutputFormat = "pdf"
