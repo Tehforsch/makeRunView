@@ -3,12 +3,12 @@ from makeRunView.utils import fileUtils, osUtils
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
-    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, exactCommand = False):
+    def __init__(self, starts, targets, command=None, runCommandOnStartFile = True, printOutput = True, doNotAppendFilenameToCommand = False):
         self.starts = starts
         self.targets = targets
         self.command = command
         self.printOutput = printOutput
-        self.exactCommand = exactCommand
+        self.doNotAppendFilenameToCommand = doNotAppendFilenameToCommand
         self.runCommandOnStartFile = runCommandOnStartFile 
         self.initialized = False
 
@@ -44,7 +44,7 @@ class Dependency:
         if self.command is None: # a dependency that is just needed for the tree structure so we know what may change, but doesn't need to get cleaned
             return None
         if type(self.command) == str:
-            if self.exactCommand:
+            if self.doNotAppendFilenameToCommand:
                 return osUtils.executeExactCommand(workPath, self.command)
             else:
                 if self.runCommandOnStartFile:
