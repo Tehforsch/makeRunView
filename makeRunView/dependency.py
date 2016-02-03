@@ -1,5 +1,6 @@
 import os, logging
 from makeRunView.utils import fileUtils, osUtils
+from makeRunView import tools
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
@@ -38,6 +39,9 @@ class Dependency:
             self.targets = [self.targets]
         if len(self.starts) == 0 or len(self.targets) == 0:
             self.invalid = True
+        # for f in self.starts + self.targets:
+        #     if not os.path.isfile(f.fname):
+        #         self.invalid = True
         self.initialized = True
 
     def clean(self, workPath):
