@@ -16,3 +16,5 @@ runJarCommand = "java -jar"
 
 startFilePlaceholder = "%s"
 targetFilePlaceholder = "%t"
+
+explicitFileSeparator = "->"

@@ -97,7 +97,3 @@ def beginsWith(line, string):
     if string in line and line.strip().index(string) == 0:
         return True
     return False
-
-def isSuperDirectory(path1, path2):
-    # Check whether path1 is above path2
-    print( os.path.realpath(path1), os.path.realpath(path2))

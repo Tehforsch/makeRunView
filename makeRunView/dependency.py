@@ -2,6 +2,7 @@ import os, logging
 from makeRunView.utils import fileUtils, osUtils
 from makeRunView import tools
 from makeRunView import config
+from makeRunView.filestate import FileState
 
 class Dependency:
     """The biggest set of connected files that can be cleaned by executing one function."""
@@ -30,13 +31,15 @@ class Dependency:
             self.targets = [self.targets]
         startsCopy = self.starts[:]
         targetsCopy = self.targets[:]
-        self.starts = mrv.convertLocalFileNamesToStates(self.starts, path)
-        self.targets = mrv.convertLocalFileNamesToStates(self.targets, path)
         self.invalid = False
         if type(self.starts) != list:
             self.starts = [self.starts]
         if type(self.targets) != list:
             self.targets = [self.targets]
+        if type(self.starts[0]) != FileState:
+            self.starts = mrv.convertLocalFileNamesToStates(self.starts, path)
+        if type(self.targets[0]) != FileState:
+            self.targets = mrv.convertLocalFileNamesToStates(self.targets, path)
         if len(self.starts) == 0 or len(self.targets) == 0:
             self.invalid = True
         self.command = self.process(self.command)

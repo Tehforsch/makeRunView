@@ -2,7 +2,9 @@ import os, logging, sys
 from makeRunView import config, tools
 from makeRunView.utils import fileUtils
 from makeRunView.dependency import Dependency
+from makeRunView.filestate import FileState
 import importlib.machinery
+import re
 
 class DependencyManager:
     """Checks dependencies between files by calling modules. Modules are loaded from a global module folder
@@ -47,10 +49,21 @@ class DependencyManager:
         lines = f.readlines()
         lines = [l.replace("\n", "") for l in lines]
         f.close()
+        dependencies = self.readExplicitDependencies(lines)
+        for dep in dependencies:
+            if type(dep.starts[0]) == FileState:
+                fileStateOfStartFile = dep.starts[0]
+            else:
+                fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
+            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
+            self.addDependency(dep)
+        return dependencies
+    
+    def readExplicitDependencies(self, lines):
         # Format of lines : [start1, start2, ...] -> [target1, target2, ...] -> command 
         dependencies = []
         for l in lines:
-            sp = l.split("->")
+            sp = l.split(config.explicitFileSeparator)
             if len(sp) > 1:
                 starts = sp[0]
                 targets = sp[1]
@@ -62,15 +75,23 @@ class DependencyManager:
                     targets = targets.split(",")
                 else:
                     targets = [targets]
-            command = sp[2] if len(sp) == 3 else None
+            command = sp[2].strip() if len(sp) == 3 else None
             starts = [tools.cleanFilename(x) for x in starts]
             targets = [tools.cleanFilename(x) for x in targets]
+            starts = self.findMatches(starts)
+            targets = self.findMatches(targets)
+            if starts == [] or targets == []:
+                continue
             dependencies.append(Dependency(starts = starts, targets = targets, command = command, printOutput = True))
-        for dep in dependencies:
-            fileStateOfStartFile = self.mrv.findFileState(self.mrv.workPath + "/" + dep.starts[0])
-            dep.initialize(self.mrv, fileStateOfStartFile, pathIsRelativeToProject=True,explicit=True)
-            self.addDependency(dep)
         return dependencies
+
+    def findMatches(self, expressions):
+        return [f2 for f1 in expressions for f2 in self.files if self.isMatch(f1, f2.fname)]
+
+    def isMatch(self, regex, filename):
+        localName = filename.replace(self.mrv.workPath + "/", "")
+        match = re.match(regex, localName)
+        return match is not None
 
     def addDependency(self, d):
         self.dependencies.append(d)
