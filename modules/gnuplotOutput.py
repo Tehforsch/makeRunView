@@ -9,8 +9,7 @@ def check(f, lines):
     for l in lines:
         if "set output" in l:
             outputFile = tools.getString(l)
-            # This occurs with lines like 'set output pic'.x.'.gpi' which sets outputfiles dynamically (should happen very rarely). Just ignore it
-            if outputFile == None:
+            if tools.numQuotes(l) > 2 or outputFile == None: # This occurs with lines like 'set output pic'.x.'.gpi' which sets outputfiles dynamically (should happen very rarely). Just ignore it
                 continue
             targets.append(outputFile)
     if len(targets) == 0:

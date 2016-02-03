@@ -39,6 +39,7 @@ class TestMakeRunViewModules():
             "load 'template'.x.'.gpi'", 
             "plot f(x)"]
         res = gnuplotLoad.check(f, lines)
+        assert(res == None)
 
     def testGnuplotOutput(self):
         f = Mock(fileType = "gpi")

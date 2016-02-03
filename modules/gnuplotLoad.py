@@ -9,8 +9,7 @@ def check(f, lines):
     for l in lines:
         if "load" in l:
             loadedFile = tools.getString(l)
-            # This occurs with lines like 'load template'.x.'.gpi' which load files dynamically (should happen very rarely). Just ignore it
-            if loadedFile == None:
+            if tools.numQuotes(l) > 2 or loadedFile == None: # This occurs with lines like 'load template'.x.'.gpi' which load files dynamically (should happen very rarely). Just ignore it
                 continue
             starts.append(loadedFile)
     if len(starts) == 0:

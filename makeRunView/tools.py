@@ -69,3 +69,5 @@ def getString(line, index=0):
     else:
         return None
 
+def numQuotes(line, index=0):
+    return line[index+1:].count("\"") + line[index+1:].count("'")
