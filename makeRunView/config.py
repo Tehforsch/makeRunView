@@ -1,5 +1,5 @@
-fileTypesToWatch = ["gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf", "pmf", "java"]
-fileTypesToCheckImplicitDependencies = ["gpi", "py", "tex", "sh", "pmf", "java"]
+fileTypesToWatch = ["gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf", "pmf", "java", "xml"]
+fileTypesToCheckImplicitDependencies = ["gpi", "py", "tex", "sh", "pmf", "java", "xml"]
 
 # targetString = "writes"
 # startString = "needs"

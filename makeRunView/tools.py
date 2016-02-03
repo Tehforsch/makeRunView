@@ -1,3 +1,4 @@
+import os
 from makeRunView import config
 
 def cleanFilename(fname):
@@ -43,3 +44,10 @@ def ensureList(maybeList):
     if type(maybeList) != list:
         return [maybeList]
     return maybeList
+
+def resolveJavaFilename(srcFolder, filename):
+    if "." in filename: # First dot indicates package name which is probably not relevant for the filename
+        filename = filename[filename.index(".")+1:]
+    # The rest of the dots should just mean subpackages, i.e. subfolders, replace with slashes
+    filename = filename.replace(".", "/")
+    return os.path.join(srcFolder, filename) + ".java"

@@ -2,16 +2,31 @@ from makeRunView import tools
 from makeRunView.dependency import Dependency
 
 def check(f, lines):
-    if f.fileType != "java":
+    if f.fileType != "xml":
         return None
     dependencies = []
-    start = f.fname
-    # We don't know how where the build.xml lies with respect to this file. Assume that
-    # this file is in ./src/subpackage1/subpackage2/.../ where . is the project root where
-    # build.xml is. Use the amount of dots in the first package statement of the file to determine
-    # the path. THIS IS TERRIBLE BUT IT WORKS
-    packageLines = [line for line in lines if "package" in line]
-    assert(len(packageLines) == 1)
-    numSubDirectories = packageLines[0].count(".") + 1
-    target = "../" * numSubDirectories + "build.xml"
+    target = f.fname
+    # 
+    mainClassLines = [line for line in lines if "Main-Class" in line]
+    srcFolderLines = [line for line in lines if "srcdir" in line]
+    assert(len(mainClassLines) == 1)
+    assert(len(srcFolderLines) == 1)
+    mainClassLine = mainClassLines[0]
+    srcFolderLine = srcFolderLines[0]
+    assert("Main-Class" in mainClassLine)
+    index = mainClassLine.index("Main-Class") + 11 # look behind the end string of "Main-Class"
+    filename = getStringAfterIndex(mainClassLine, index)
+    srcFolder = getStringAfterIndex(srcFolderLine, 0)
+    start = tools.resolveJavaFilename(srcFolder, filename)
+    if start == None:
+        return None
     return Dependency(starts = start, targets = target, command = "ant compile -S -q && ant jar -S -q && ant run", runCommandOnStartFile = False, doNotAppendFilenameToCommand = True)
+
+def getStringAfterIndex(line, index):
+    if "\"" in line:
+        return tools.charactersBetween(line, "\"", "\"", index)
+    elif "'" in line:
+        return tools.charactersBetween(line, "'", "'", index)
+    else:
+        return None
+
