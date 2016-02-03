@@ -22,11 +22,3 @@ def check(f, lines):
         return None
     return Dependency(starts = start, targets = target, command = "ant compile -S -q && ant jar -S -q && ant run", runCommandOnStartFile = False, doNotAppendFilenameToCommand = True)
 
-def getStringAfterIndex(line, index):
-    if "\"" in line:
-        return tools.charactersBetween(line, "\"", "\"", index)
-    elif "'" in line:
-        return tools.charactersBetween(line, "'", "'", index)
-    else:
-        return None
-

@@ -8,13 +8,11 @@ def check(f, lines):
     target = f.fname
     for l in lines:
         if "load" in l:
-            if l.count("\"") == 2:
-                starts.append(tools.charactersBetween(l, "\"", "\""))
-            elif l.count("\'") == 2:
-                starts.append(tools.charactersBetween(l, "\'", "\'"))
-            else:
-                # This occurs with lines like 'load template'.x.'.gpi' which load files dynamically (should happen very rarely). Just ignore it
+            loadedFile = tools.getString(l)
+            # This occurs with lines like 'load template'.x.'.gpi' which load files dynamically (should happen very rarely). Just ignore it
+            if loadedFile == None:
                 continue
+            starts.append(loadedFile)
     if len(starts) == 0:
         return None
     return Dependency(starts = starts, targets = target, runCommandOnStartFile = False, printOutput = False)

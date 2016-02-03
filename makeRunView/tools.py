@@ -60,3 +60,12 @@ def getRelativeJavaPath(package, importedFile):
     # then convert importedFile to a path and append it.
     srcFolder = "../" * (package.count(".")+1)
     return resolveJavaFilename(srcFolder, importedFile)
+
+def getString(line, index=0):
+    if "\"" in line:
+        return charactersBetween(line, "\"", "\"", index)
+    elif "'" in line:
+        return charactersBetween(line, "'", "'", index)
+    else:
+        return None
+

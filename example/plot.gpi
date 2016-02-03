@@ -1,3 +1,4 @@
+load "defaults.gpi"
 set terminal epslatex
 set output "pic.tex"
 plot exp(-1/x**2)
