@@ -46,8 +46,17 @@ def ensureList(maybeList):
     return maybeList
 
 def resolveJavaFilename(srcFolder, filename):
-    if "." in filename: # First dot indicates package name which is probably not relevant for the filename
-        filename = filename[filename.index(".")+1:]
-    # The rest of the dots should just mean subpackages, i.e. subfolders, replace with slashes
+    # The dots should just mean subpackages, i.e. subfolders, replace with slashes
     filename = filename.replace(".", "/")
     return os.path.join(srcFolder, filename) + ".java"
+
+def getRelativeJavaPath(package, importedFile):
+    # Return the path of the file given by importedFile relative to a file which is contained in package.
+    # For example: if 
+    # package = "main.foo.bar"
+    # importedFile = "main.foo.baz.Main"
+    # then the relative path should be "../baz/Main.java"
+    # easy solution: go upwards to the src folder by using ../ for each subpackage in package
+    # then convert importedFile to a path and append it.
+    srcFolder = "../" * (package.count(".")+1)
+    return resolveJavaFilename(srcFolder, importedFile)
