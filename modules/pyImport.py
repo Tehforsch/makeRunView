@@ -8,7 +8,7 @@ def check(f, lines):
     starts = []
     target = f.fname
     for l in lines:
-        if "import" in l:
+        if not tools.isComment(l, "#") and "import " in l:
             start = None
             if "from" in l:
                 start = tools.charactersBetween(l, " ", " ")
