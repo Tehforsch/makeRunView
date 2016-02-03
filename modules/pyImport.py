@@ -1,5 +1,6 @@
 from makeRunView import tools
 from makeRunView.dependency import Dependency
+from makeRunView import config
 
 def check(f, lines):
     if f.fileType != "py":
@@ -24,4 +25,4 @@ def check(f, lines):
                 starts = [start.strip() + ".py" for start in starts]
     if len(starts) == 0:
         return None
-    return Dependency(starts = starts, targets = target, command = "python3", runCommandOnStartFile = False)
+    return Dependency(starts = starts, targets = target, command = config.pythonCommand + " " + config.targetFilePlaceholder, runInStartFolder = False)

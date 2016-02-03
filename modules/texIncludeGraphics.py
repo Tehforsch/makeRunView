@@ -30,4 +30,4 @@ def check(f, lines):
             starts.append(filename)
     if len(starts) == 0:
         return None
-    return Dependency(starts = starts, targets = target, runCommandOnStartFile = False, printOutput = False)
+    return Dependency(starts = starts, targets = target, runInStartFolder = False, printOutput = False)

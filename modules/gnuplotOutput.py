@@ -14,4 +14,4 @@ def check(f, lines):
             targets.append(outputFile)
     if len(targets) == 0:
         return None
-    return Dependency(starts = start, targets = targets, command = "gnuplot", printOutput = True)
+    return Dependency(starts = start, targets = targets, command = "gnuplot %s", printOutput = True)

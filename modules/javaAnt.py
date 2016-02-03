@@ -24,5 +24,5 @@ def check(f, lines):
     start = tools.resolveJavaFilename(srcFolder, filename)
     if start == None:
         return None
-    return Dependency(starts = [start], targets = target, command = "ant compile -S -q && ant jar -S -q", runCommandOnStartFile = False, doNotAppendFilenameToCommand = True)
+    return Dependency(starts = [start], targets = target, command = "ant compile -S -q && ant jar -S -q", runInStartFolder = False)
 

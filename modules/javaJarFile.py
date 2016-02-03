@@ -1,5 +1,6 @@
 from makeRunView import tools
 from makeRunView.dependency import Dependency
+from makeRunView import config
 
 def check(f, lines):
     if f.fileType != "xml":
@@ -10,5 +11,5 @@ def check(f, lines):
     assert(len(jarFileLines) == 1)
     jarFileLine = jarFileLines[0]
     target = tools.getString(jarFileLine)
-    return Dependency(starts = [start], targets = [target], command = "java -jar", runCommandOnStartFile = False)
+    return Dependency(starts = [start], targets = [target], command = config.runJarCommand + " " + config.targetFilePlaceholder, runInStartFolder = False)
 

@@ -11,6 +11,7 @@ from modules import javaImport
 from modules import javaAnt
 from modules import javaJarFile
 from makeRunView import filestate
+from makeRunView import config
 import mock
 from mock import Mock
 # from makeRunView import makerunview
@@ -37,7 +38,7 @@ class TestMakeRunViewModules():
         lines = ["load 'template.gpi'"]
         res = gnuplotLoad.check(f, lines)
         # Test with a dynamic string for loading which should produce no dependency
-        assert(res != None and len(res.starts) == 1 and res.starts[0] == "template.gpi")
+        assert(res != None and len(res.starts) == 1 and res.starts[0] == "template.gpi" and res.command == None)
         lines = ["set terminal wxt",
             "load 'template'.x.'.gpi'", 
             "plot f(x)"]
@@ -51,11 +52,11 @@ class TestMakeRunViewModules():
             "set output \"test.tex\"",
             "plot f(x)"]
         res = gnuplotOutput.check(f, lines)
-        assert(res != None and len(res.targets) == 1 and res.targets[0] == "test.tex")
+        assert(res != None and len(res.targets) == 1 and res.targets[0] == "test.tex" and res.command == "gnuplot " + config.startFilePlaceholder)
         # Check with single quotes
         lines = ["set output 'test.tex'"]
         res = gnuplotOutput.check(f, lines)
-        assert(res != None and len(res.targets) == 1 and res.targets[0] == "test.tex")
+        assert(res != None and len(res.targets) == 1 and res.targets[0] == "test.tex" and res.command == "gnuplot " + config.startFilePlaceholder)
         # Dynamic output string -> No dependency
         lines = ["set output 'test'.x.'.tex'"]
         res = gnuplotOutput.check(f, lines)
@@ -69,7 +70,7 @@ class TestMakeRunViewModules():
         f = Mock(fileType = "py")
         lines = ["import test"]
         res = pyImport.check(f, lines)
-        assert(res != None and len(res.starts) == 1 and res.starts[0] == "test.py")
+        assert(res != None and len(res.starts) == 1 and res.starts[0] == "test.py" and res.command == config.pythonCommand + " " + config.targetFilePlaceholder)
         lines = ["import test1, test2"]
         res = pyImport.check(f, lines)
         assert(res != None and len(res.starts) == 2 and res.starts[0] == "test1.py" and res.starts[1] == "test2.py")
@@ -85,7 +86,7 @@ class TestMakeRunViewModules():
         lines = ["\\includegraphics{pics/test}"]
         texIncludeGraphics.os.path.isfile = Mock(side_effect = lambda x : (x == "pics/test.png"))
         res = texIncludeGraphics.check(f, lines) 
-        assert(res.starts[0] == "pics/test.png")
+        assert(res.starts[0] == "pics/test.png" and res.command == None)
 
     def testTexInput(self):
         f = Mock(fileType = "tex")
@@ -94,21 +95,19 @@ class TestMakeRunViewModules():
         lines = ["\\input{test}"]
         # texInput.os.path.isfile = Mock(side_effect = lambda x : False)
         res = texInput.check(f, lines) 
-        assert(res.starts[0] == "test.tex")
+        assert(res.starts[0] == "test.tex" and res.command == None)
 
     def testTexMainFile(self):
         f = Mock(fileType = "tex", fname = "test.tex")
-        lines = ["% GNUPLOT: LaTeX picture with Postscript", "\\begingroup", "\\makeatletter"]
-        assert(texMainFile.check(f, lines) == None)
         lines = ["\\begin{document}"]
         res = texMainFile.check(f, lines) 
-        assert(res.targets == "test.pdf")
+        assert(res.targets == "test.pdf" and res.command == config.latexCommand + " " + config.startFilePlaceholder)
 
     def testTexSubImport(self):
         f = Mock(fileType = "tex", fname = "test.tex")
         lines = ["\\subimport{pics/}{test}"]
         res = texSubImport.check(f, lines) 
-        assert(res.starts[0] == "pics/test.tex")
+        assert(res.starts[0] == "pics/test.tex" and res.command == None)
 
     def testIgnoreIncorrectFiletypes(self): 
         modulesAndIncorrectFiletypes = [
@@ -184,5 +183,5 @@ class TestMakeRunViewModules():
         </target>"""
         lines = lines.split("\n")
         res = javaJarFile.check(f, lines)
-        assert(res != None and len(res.starts) == 1 and res.targets[0] == "build/jar/Main.jar")
+        assert(res != None and len(res.starts) == 1 and res.targets[0] == "build/jar/Main.jar" and res.command == config.runJarCommand + " " + config.targetFilePlaceholder)
 
