@@ -9,6 +9,7 @@ from modules import texMainFile
 from modules import texSubImport
 from modules import javaImport
 from modules import javaAnt
+from modules import javaJarFile
 from makeRunView import filestate
 import mock
 from mock import Mock
@@ -169,4 +170,19 @@ class TestMakeRunViewModules():
         lines = lines.split("\n")
         res = javaAnt.check(f, lines)
         assert(res != None and len(res.starts) == 1 and res.starts[0] == "src/main/Main.java")
+
+    def testJavaJarFile(self):
+        f = Mock(fileType = "xml")
+        lines = """
+        <target name="jar">
+            <mkdir dir="build/jar"/>
+            <jar destfile="build/jar/Main.jar" basedir="build/classes">
+                <manifest>
+                    <attribute name="Main-Class" value="main.Main"/>
+                </manifest>
+            </jar>
+        </target>"""
+        lines = lines.split("\n")
+        res = javaJarFile.check(f, lines)
+        assert(res != None and len(res.starts) == 1 and res.targets[0] == "build/jar/Main.jar")
 
