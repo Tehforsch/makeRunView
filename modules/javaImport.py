@@ -24,14 +24,6 @@ def check(f, lines):
         return
     return Dependency(starts = starts, targets = target)
 
-# def getStringAfterIndex(line, index):
-#     if "\"" in line:
-#         return tools.charactersBetween(line, "\"", "\"", index)
-#     elif "'" in line:
-#         return tools.charactersBetween(line, "'", "'", index)
-#     else:
-#         return None
-
 def getStatementTarget(statement):
     # for statements like "import java.util.Vector;" or "package main"
     # return "java.util.Vector" or "main" respectively.

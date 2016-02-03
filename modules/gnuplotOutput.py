@@ -8,13 +8,11 @@ def check(f, lines):
     targets = []
     for l in lines:
         if "set output" in l:
-            if l.count("\"") == 2:
-                targets.append(tools.charactersBetween(l, "\"", "\""))
-            elif l.count("\'") == 2:
-                targets.append(tools.charactersBetween(l, "\'", "\'"))
-            else:
-                # This occurs with lines like 'set output pic'.x.'.gpi' which sets outputfiles dynamically (should happen very rarely). Just ignore it
+            outputFile = tools.getString(l)
+            # This occurs with lines like 'set output pic'.x.'.gpi' which sets outputfiles dynamically (should happen very rarely). Just ignore it
+            if outputFile == None:
                 continue
+            targets.append(outputFile)
     if len(targets) == 0:
         return None
     return Dependency(starts = start, targets = targets, command = "gnuplot", printOutput = True)

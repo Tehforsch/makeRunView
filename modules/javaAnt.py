@@ -15,8 +15,8 @@ def check(f, lines):
     srcFolderLine = srcFolderLines[0]
     assert("Main-Class" in mainClassLine)
     index = mainClassLine.index("Main-Class") + 11 # look behind the end string of "Main-Class"
-    filename = getStringAfterIndex(mainClassLine, index)
-    srcFolder = getStringAfterIndex(srcFolderLine, 0)
+    filename = tools.getString(mainClassLine, index)
+    srcFolder = tools.getString(srcFolderLine, 0)
     start = tools.resolveJavaFilename(srcFolder, filename)
     if start == None:
         return None
