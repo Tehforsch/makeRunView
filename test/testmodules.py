@@ -7,6 +7,8 @@ from modules import texIncludeGraphics
 from modules import texInput
 from modules import texMainFile
 from modules import texSubImport
+from modules import javaImport
+from modules import javaAnt
 from makeRunView import filestate
 import mock
 from mock import Mock
@@ -70,9 +72,6 @@ class TestMakeRunViewModules():
         lines = ["import test1, test2"]
         res = pyImport.check(f, lines)
         assert(res != None and len(res.starts) == 2 and res.starts[0] == "test1.py" and res.starts[1] == "test2.py")
-        lines = ["from test import foo"]
-        res = pyImport.check(f, lines)
-        assert(res != None and len(res.starts) == 1 and res.starts[0] == "test.py")
 
     def testTexIncludeGraphics(self):
         f = Mock(fileType = "tex")
@@ -138,4 +137,36 @@ class TestMakeRunViewModules():
         f = Mock(fileType = "tex")
         lines = ["% GNUPLOT: LaTeX picture with Postscript", "\\begingroup", "\\makeatletter"]
         assert(module.check(f, lines) == None)
+
+    def testJavaImport(self):
+        f = Mock(fileType = "java")
+        lines = ["package a.b;\n", 
+                 "import a.b.c;\n"]
+        res = javaImport.check(f, lines)
+        assert(res != None and len(res.starts) == 1 and res.starts[0] == "../../a/b/c.java")
+        f = Mock(fileType = "java")
+        lines = ["package a.b;\n", 
+                 "import a.b.c;\n",
+                 "import a.d.e;\n"]
+        res = javaImport.check(f, lines)
+        assert(res != None and len(res.starts) == 2 and res.starts[0] == "../../a/b/c.java" and res.starts[1] == "../../a/d/e.java")
+
+    def testJavaAnt(self):
+        f = Mock(fileType = "xml")
+        lines = """
+        <target name="compile">
+            <mkdir dir="build/classes"/>
+            <my.javac srcdir="src" destdir="build/classes"/>
+        </target>
+        <target name="jar">
+            <mkdir dir="build/jar"/>
+            <jar destfile="build/jar/Main.jar" basedir="build/classes">
+                <manifest>
+                    <attribute name="Main-Class" value="main.Main"/>
+                </manifest>
+            </jar>
+        </target>"""
+        lines = lines.split("\n")
+        res = javaAnt.check(f, lines)
+        assert(res != None and len(res.starts) == 1 and res.starts[0] == "src/main/Main.java")
 
