@@ -7,3 +7,4 @@ example/test.pdf
 *.log
 *.out
 .coverage
+todo
