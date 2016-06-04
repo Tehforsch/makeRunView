@@ -11,4 +11,4 @@ def check(f, lines):
     dependencies = []
     start = f.fname
     target = "terminalOutputThisIsAnnoying"
-    return Dependency(starts = start, targets = target, command = config.haskellCommand + " " + config.startFilePlaceholder, runInStartFolder = True)
+    return Dependency(starts = start, targets = target, command = config.pythonCommand + " " + config.startFilePlaceholder, runInStartFolder = True)
