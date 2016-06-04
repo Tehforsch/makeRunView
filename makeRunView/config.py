@@ -11,6 +11,7 @@ latexCommand = "pdflatex -interaction=nonstopmode -shell-escape"
 latexOutputFormat = "pdf"
 
 pythonCommand = "python3.4"
+pythonMainFile = "main.py"
 
 haskellCommand = "runghc"
 
