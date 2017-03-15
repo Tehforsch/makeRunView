@@ -2,7 +2,6 @@
 from nose.tools import eq_ as eq
 from modules import gnuplotLoad
 from modules import gnuplotOutput
-from modules import pyImport
 from modules import texIncludeGraphics
 from modules import texInput
 from modules import texMainFile
@@ -66,15 +65,6 @@ class TestMakeRunViewModules():
         res = gnuplotOutput.check(f, lines)
         assert(res == None)
 
-    def testPyImport(self):
-        f = Mock(fileType = "py")
-        lines = ["import test"]
-        res = pyImport.check(f, lines)
-        assert(res != None and len(res.starts) == 1 and res.starts[0] == "test.py" and res.command == config.pythonCommand + " " + config.targetFilePlaceholder)
-        lines = ["import test1, test2"]
-        res = pyImport.check(f, lines)
-        assert(res != None and len(res.starts) == 2 and res.starts[0] == "test1.py" and res.starts[1] == "test2.py")
-
     def testTexIncludeGraphics(self):
         f = Mock(fileType = "tex")
         lines = ["% GNUPLOT: LaTeX picture with Postscript", "\\begingroup", "\\makeatletter"]
@@ -114,7 +104,6 @@ class TestMakeRunViewModules():
             [gnuplotLoad, "pdf"],
             [gnuplotOutput, "pdf"],
             [gnuplotOutput, "pdf"],
-            [pyImport, "pdf"],
             [texIncludeGraphics, "pdf"],
             [texInput, "pdf"],
             [texMainFile, "pdf"],
