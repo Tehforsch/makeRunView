@@ -1,9 +1,10 @@
+from os.path import expanduser
 fileTypesToWatch = ["hs", "gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf", "pmf", "java", "xml", "jar"]
 fileTypesToCheckImplicitDependencies = ["hs", "gpi", "py", "tex", "sh", "pmf", "java", "xml"]
 
 safetyTime = 0.3
 
-globalPath = "/home/toni/projects/makeRunView/modules/"
+globalPath = "{home}/projects/makeRunView/modules/".format(home=expanduser("~"))
 projectSubfolder = ".makeRunView/"
 explicitDependenciesFilename = "explicit"
 
