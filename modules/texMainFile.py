@@ -10,5 +10,14 @@ def check(f, lines):
     target = f.fname.replace(".tex","." + config.latexOutputFormat)
     for l in lines:
         if "\\begin{document}" in l:
-            return Dependency(starts = start, targets = target, command = config.latexCommand + " " + config.startFilePlaceholder, runInStartFolder = True, printOutput = True)
+            command = getCommand(start)
+            return Dependency(starts=start, targets=target, command=command, runInStartFolder=True, printOutput=True)
     return None
+
+def getCommand(start):
+    assert ".tex" in start
+    command = config.latexCommand + " " + config.startFilePlaceholder
+    logFile = start.replace(".tex", ".log")
+    command = command + "; cat {} | grep multiply".format(logFile)
+    command = command + "; cat {} | grep undefined".format(logFile)
+    return command

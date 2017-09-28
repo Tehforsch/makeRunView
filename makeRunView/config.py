@@ -1,6 +1,6 @@
 from os.path import expanduser
-fileTypesToWatch = ["hs", "gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf", "pmf", "java", "xml", "jar"]
-fileTypesToCheckImplicitDependencies = ["hs", "gpi", "py", "tex", "sh", "pmf", "java", "xml"]
+fileTypesToWatch = ["hs", "gpi", "py", "tex", "sh", "dat", "png", "jpg", "bib", "svg", "pdf", "pmf"]
+fileTypesToCheckImplicitDependencies = ["hs", "gpi", "py", "tex", "sh", "pmf", "java"]
 
 safetyTime = 0.3
 
